@@ -1,0 +1,27 @@
+{
+  "character_anchor": {
+    "path": "character/anchor.png",
+    "role": "run-local identity anchor for every generated scene",
+    "source": "user-approved existing anchor reused unchanged",
+    "identity_lock": "brown tousled hair with one curl, round black glasses, warm peach face, teal cape, mustard tunic, coral scarf, brown satchel, parchment scroll, same proportions and palette"
+  },
+  "scene_assets": [
+    {"slide": "s01-new-resume", "path": "illustrations/01-new-resume.png", "role": "cover illustration"},
+    {"slide": "s02-romans-turning-points", "path": "illustrations/02-romans-turning-points.png", "role": "historical turning-point metaphor"},
+    {"slide": "s03-begin-with-fear", "path": "illustrations/03-begin-with-fear.png", "role": "beginning-with-fear metaphor"},
+    {"slide": "s04-two-words", "path": "illustrations/04-two-words.png", "role": "two-word identity metaphor"},
+    {"slide": "s05-servant-shared-fate", "path": "illustrations/05-servant-shared-fate.png", "role": "shared-fate metaphor"},
+    {"slide": "s06-sent-messenger", "path": "illustrations/06-sent-messenger.png", "role": "sent-messenger metaphor"},
+    {"slide": "s07-old-resume", "path": "illustrations/07-old-resume.png", "role": "old-resume metaphor"},
+    {"slide": "s08-gospel-revalues-resume", "path": "illustrations/08-gospel-revalues-resume.png", "role": "gospel revaluation metaphor"},
+    {"slide": "s09-inside-out-purity", "path": "illustrations/09-inside-out-purity.png", "role": "inside-out purity metaphor"},
+    {"slide": "s10-heart-renewal", "path": "illustrations/10-heart-renewal.png", "role": "heart renewal metaphor"},
+    {"slide": "s11-new-namecard", "path": "illustrations/11-new-namecard.png", "role": "new namecard metaphor"},
+    {"slide": "s12-sent-by-the-lord", "path": "illustrations/12-sent-by-the-lord.png", "role": "conclusion invitation"}
+  ],
+  "generation_notes": {
+    "reference_policy": "The anchor is the only character identity reference for all generated scenes.",
+    "text_policy": "No Korean copy is generated inside raster images; all visible copy is rendered by the HTML deck.",
+    "review_status": "All scene files were visually inspected after generation; historical and exegetical claims retain their ledger status."
+  }
+}

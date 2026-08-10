@@ -1,0 +1,19 @@
+{
+  "input": "/Users/msn/Desktop/MS_Dev.nosync/projects/handdrawn-longform-html/output/rom01-1-1-servant-apostle-v1/rom01-1-1-servant-apostle.html",
+  "output": "/Users/msn/Desktop/MS_Dev.nosync/projects/handdrawn-longform-html/output/rom01-1-1-servant-apostle-v1/rom01-1-1-servant-apostle.pdf",
+  "chrome": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "host": "msn-imac",
+  "check": {
+    "pageCount": 12,
+    "imageCount": 12,
+    "brokenImages": 0,
+    "overflow": 0,
+    "fonts": {
+      "display": true,
+      "body": true
+    },
+    "fontStatus": "loaded"
+  },
+  "pdfInfo": "Title:           롬 1:1 예수 그리스도의 종, 바울\nCreator:         Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36\nProducer:        Skia/PDF m151\nCreationDate:    Tue Aug 11 08:14:53 2026 KST\nModDate:         Tue Aug 11 08:14:53 2026 KST\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           12\nEncrypted:       no\nPage size:       960 x 540 pts\nPage rot:        0\nFile size:       24870919 bytes\nOptimized:       no\nPDF version:     1.4\n",
+  "pdffonts": "name                                 type              encoding         emb sub uni object ID\n------------------------------------ ----------------- ---------------- --- --- --- ---------\nAAAAAA+GangwonEdu_OTFBoldA           CID TrueType      Identity-H       yes yes yes     13  0\nBAAAAA+GangwonEdu_OTFLightA          CID TrueType      Identity-H       yes yes yes     15  0\n"
+}
