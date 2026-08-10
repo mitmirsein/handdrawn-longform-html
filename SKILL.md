@@ -122,3 +122,4 @@ Do not overwrite a previous run. Use a new slug or an explicit version directory
 - [source-and-citation.md](references/source-and-citation.md) — verification and quotation policy.
 - [character-continuity.md](references/character-continuity.md) — anchor, roles, scene prompts, and drift checks.
 - [rendering.md](references/rendering.md) — capability routing and deck export.
+- [review-checklist.md](references/review-checklist.md) — integrated review gates and final sign-off.

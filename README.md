@@ -14,6 +14,7 @@ hand-drawn deck and rendered as static HTML and print-ready PDF.
 - `source-and-citation.md` — evidence and citation handling
 - `character-continuity.md` — anchor and scene continuity
 - `genre-adapters.md` — sermon, essay, column, and lecture adaptations
+- `review-checklist.md` — integrated review gates and final sign-off
 
 The references do not run as independent skills. They are read as needed by
 the workflow defined in `SKILL.md`.
@@ -65,3 +66,7 @@ Keep source analysis, argument map, claim ledger, outline, deck specification,
 character anchor, illustrations, fonts, HTML, and PDF together under
 `output/<slug>/`. The renderer only assembles reviewed local assets; it does
 not search for sources or generate images.
+
+Before calling a deck complete, use
+[`references/review-checklist.md`](references/review-checklist.md) as the single
+sign-off sheet and follow its links for domain-specific decisions.
