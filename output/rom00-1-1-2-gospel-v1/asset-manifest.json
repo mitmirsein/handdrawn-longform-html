@@ -1,0 +1,23 @@
+{
+  "character_anchor": {
+    "path": "character/anchor.png",
+    "role": "모든 장면의 첫 번째이자 고정된 캐릭터 참조",
+    "generated_with": "built-in image generation tool",
+    "identity_lock": "밤색 짧은 머리와 오른쪽 컬, 둥근 검정 안경, 틸 망토, 머스터드 튜닉, 코랄 목도리, 갈색 가방, 빈 두루마리"
+  },
+  "scene_assets": [
+    {"slide": 1, "path": "illustrations/01-opening.png", "role": "중심 질문과 두 갈래 길"},
+    {"slide": 2, "path": "illustrations/02-timeline.png", "role": "연대 간격과 검토 표식"},
+    {"slide": 3, "path": "illustrations/03-dispersal.png", "role": "흩어짐과 복음의 경로"},
+    {"slide": 4, "path": "illustrations/04-antioch.png", "role": "안디옥의 혼합 공동체"},
+    {"slide": 5, "path": "illustrations/05-name.png", "role": "외부에서 붙은 이름"},
+    {"slide": 6, "path": "illustrations/06-disciple.png", "role": "따름과 제자의 정체성"},
+    {"slide": 7, "path": "illustrations/07-two-forms.png", "role": "두 복음 표현의 비교"},
+    {"slide": 8, "path": "illustrations/08-common-core.png", "role": "공통 본질의 흐름"},
+    {"slide": 9, "path": "illustrations/09-transition.png", "role": "삶의 전환 은유"},
+    {"slide": 10, "path": "illustrations/10-atonement.png", "role": "반복과 단번의 비교"},
+    {"slide": 11, "path": "illustrations/11-worship-life.png", "role": "일상 전체의 예배"},
+    {"slide": 12, "path": "illustrations/12-conclusion.png", "role": "하나로 모이는 결론"}
+  ],
+  "generation_notes": "모든 장면은 character/anchor.png를 직접 참조해 생성했으며, 장면 사이의 이전 생성 이미지는 참조하지 않았다. 이미지 안의 한국어 문자는 생성하지 않고 deck.json의 텍스트로 분리했다."
+}

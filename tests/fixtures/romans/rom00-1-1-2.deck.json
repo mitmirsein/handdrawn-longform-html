@@ -1,0 +1,140 @@
+{
+  "title": "롬 1:1-2 하나님의 복음",
+  "source": "fixture: Rom00-1-1-2.md",
+  "aspect_ratio": "16:9",
+  "language": "ko",
+  "line_mode": "clean",
+  "slides": [
+    {
+      "id": "s01-opening-question",
+      "role": "cover",
+      "layout": "title",
+      "headline": "예수님의 복음과 바울의 복음은 같은가?",
+      "one_sentence_takeaway": "이 강의가 끝까지 답할 중심 질문을 제시한다.",
+      "source_lines": [3],
+      "visible_text": "하나님의 복음",
+      "speaker_notes": "로마서를 본격적으로 시작하기 전, 두 복음의 관계를 묻는다."
+    },
+    {
+      "id": "s02-corrected-timeline",
+      "role": "context",
+      "layout": "timeline",
+      "headline": "복음의 시간을 다시 놓다",
+      "one_sentence_takeaway": "예수와 로마서 사이의 26–27년을 역사적 배경으로 설정한다.",
+      "source_lines": [5, 15],
+      "primary_references": ["마태복음 2:13"],
+      "visible_text": "BC 4 · AD 30 · AD 56–57",
+      "speaker_notes": "연대는 원문 주장으로 표시하고, 외부 역사 검증이 필요한 항목임을 기록한다."
+    },
+    {
+      "id": "s03-dispersion",
+      "role": "claim",
+      "layout": "flow",
+      "headline": "박해가 복음의 경로를 바꾸다",
+      "one_sentence_takeaway": "예루살렘 박해로 헬라파 그리스도인들이 흩어져 새로운 전파 경로가 열린다.",
+      "source_lines": [17, 25],
+      "primary_references": ["사도행전 8:1"],
+      "visible_text": "예루살렘 → 유대·사마리아",
+      "speaker_notes": "사도들이 아니라 다른 사람들이 흩어진 이유에 대한 설교자의 해석을 구분한다."
+    },
+    {
+      "id": "s04-antioch-community",
+      "role": "context",
+      "layout": "comparison",
+      "headline": "안디옥에서 경계가 섞이다",
+      "one_sentence_takeaway": "유대인과 이방인이 함께 복음을 듣는 공동체가 형성된다.",
+      "source_lines": [33, 45],
+      "primary_references": ["사도행전 11:19–26"],
+      "visible_text": "유대인 + 이방인",
+      "speaker_notes": "헬라인의 의미와 안디옥 공동체 구성은 문맥과 원문 해석을 함께 확인한다."
+    },
+    {
+      "id": "s05-christian-name",
+      "role": "claim",
+      "layout": "content",
+      "headline": "‘그리스도인’은 누가 붙인 이름인가",
+      "one_sentence_takeaway": "그리스도인은 안디옥 주민들이 제자들에게 붙인 이름으로 설명된다.",
+      "source_lines": [46, 50],
+      "primary_references": ["사도행전 11:26"],
+      "visible_text": "처음 불린 곳: 안디옥",
+      "speaker_notes": "크리스티아누스의 어원과 ‘외부에서 붙은 별명’ 해석은 검증 상태를 표시한다."
+    },
+    {
+      "id": "s06-disciple-identity",
+      "role": "application",
+      "layout": "comparison",
+      "headline": "제자는 훈련 수료자가 아니다",
+      "one_sentence_takeaway": "그리스도에게 속하고 따르는 모든 사람이 제자라는 정의를 제시한다.",
+      "source_lines": [51, 64],
+      "primary_references": ["사도행전 11:26"],
+      "visible_text": "그리스도에게 속한 사람",
+      "speaker_notes": "유대인과 이방인을 함께 포함하는 정체성으로 청중에게 적용한다."
+    },
+    {
+      "id": "s07-two-gospel-forms",
+      "role": "comparison",
+      "layout": "comparison",
+      "headline": "예수와 바울은 어떻게 복음을 전했나",
+      "one_sentence_takeaway": "하나님 나라와 예수를 주로 믿으라는 두 표현을 나란히 놓는다.",
+      "source_lines": [65, 92],
+      "primary_references": ["사도행전 16:31", "마가복음 1:15"],
+      "visible_text": "하나님 나라 ↔ 예수를 주로 믿음",
+      "speaker_notes": "형식이 다른 두 메시지가 같은 복음인지 질문을 집중시킨다."
+    },
+    {
+      "id": "s08-common-core",
+      "role": "claim",
+      "layout": "flow",
+      "headline": "형식은 달라도 본질은 하나다",
+      "one_sentence_takeaway": "복음의 공통 본질을 죄 용서와 하나님의 다스림으로 정리한다.",
+      "source_lines": [93, 110],
+      "primary_references": ["마가복음 1:15", "사도행전 16:31"],
+      "visible_text": "죄 용서 + 하나님의 다스림",
+      "speaker_notes": "메시지와 메신저가 예수 안에서 분리되지 않는다는 설교자의 논증을 설명한다."
+    },
+    {
+      "id": "s09-cross-resurrection",
+      "role": "claim",
+      "layout": "flow",
+      "headline": "십자가와 부활이 하나님 나라를 완성하다",
+      "one_sentence_takeaway": "죄의 용서와 죽음의 정복을 통해 예수 안으로 들어가는 전환을 설명한다.",
+      "source_lines": [111, 118],
+      "primary_references": ["십자가와 부활"],
+      "visible_text": "죄 → 죽음 → 부활 → 나라의 완성",
+      "speaker_notes": "‘예수를 믿는다’를 종교 선택이 아니라 삶의 이사로 설명하는 비유를 보존한다."
+    },
+    {
+      "id": "s10-atonement",
+      "role": "evidence",
+      "layout": "comparison",
+      "headline": "왜 인간이 아니라 예수인가",
+      "one_sentence_takeaway": "죄 있는 인간은 죄인을 대신할 수 없기에 흠 없는 대속이 필요하다는 구조를 보인다.",
+      "source_lines": [119, 150],
+      "primary_references": ["히브리서 9:22", "히브리서 9:12–14"],
+      "visible_text": "피 흘림 없이는 사함도 없다",
+      "speaker_notes": "제사와 대속에 관한 신학적 설명은 설교자의 해석과 본문 인용을 분리해 표시한다."
+    },
+    {
+      "id": "s11-worship-as-life",
+      "role": "application",
+      "layout": "full",
+      "headline": "구원은 삶 전체의 예배로 이어진다",
+      "one_sentence_takeaway": "깨끗해진 양심은 살아 계신 하나님을 섬기는 삶으로 드러난다.",
+      "source_lines": [131, 164],
+      "primary_references": ["히브리서 9:14"],
+      "visible_text": "예배 = 하나님 나라에서의 삶",
+      "speaker_notes": "예배를 형식에 한정하지 않고 일상 전체로 확장하는 적용을 보존한다."
+    },
+    {
+      "id": "s12-romans-conclusion",
+      "role": "conclusion",
+      "layout": "quote",
+      "headline": "예수님의 복음과 바울의 복음은 하나다",
+      "one_sentence_takeaway": "로마서를 읽을 다음 관점을 두 복음의 동일성으로 제시한다.",
+      "source_lines": [165, 195],
+      "primary_references": ["로마서 3:25–26"],
+      "visible_text": "하나님의 의와 믿는 자의 의롭다 하심",
+      "speaker_notes": "속죄제물/화목제물 번역 문제와 하나님의 의에 대한 설교자의 결론을 다음 강의로 연결한다."
+    }
+  ]
+}

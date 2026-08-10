@@ -1,0 +1,4 @@
+interface:
+  display_name: "Handdrawn Longform HTML"
+  short_description: "Turn long-form writing into sourced hand-drawn HTML/PDF decks"
+  default_prompt: "Use $handdrawn-longform-html to analyze a long-form Markdown source and build a character-led hand-drawn HTML/PDF deck."

@@ -1,0 +1,35 @@
+{
+  "title": "장문 원고 슬라이드 예시",
+  "source": "source-analysis.md",
+  "aspect_ratio": "16:9",
+  "language": "ko",
+  "line_mode": "clean",
+  "theme": "rough-diary",
+  "font_files": {
+    "display": "fonts/GangwonEdu_OTFBoldA.woff",
+    "body": "fonts/GangwonEdu_OTFLightA.woff"
+  },
+  "slides": [
+    {
+      "id": "s01-opening-question",
+      "role": "cover",
+      "layout": "title",
+      "headline": "이 글이 던지는 질문",
+      "one_sentence_takeaway": "청중이 끝까지 붙들 중심 질문을 제시한다.",
+      "visible_text": "핵심 질문",
+      "speaker_notes": "원문의 첫 문제의식을 소개한다."
+    },
+    {
+      "id": "s02-first-claim",
+      "role": "claim",
+      "layout": "content",
+      "headline": "첫 번째 핵심 주장",
+      "one_sentence_takeaway": "첫 번째 주장이 전체 논지를 어떻게 전진시키는지 보여준다.",
+      "source_lines": [12, 28],
+      "primary_references": ["Source section 1"],
+      "visible_text": "주장 요약",
+      "speaker_notes": "근거와 해석을 구분해 설명한다.",
+      "source": "원문 12–28행"
+    }
+  ]
+}

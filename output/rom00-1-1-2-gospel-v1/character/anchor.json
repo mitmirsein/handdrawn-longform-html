@@ -1,0 +1,14 @@
+{
+  "name": "로마서 여행자",
+  "role": "허구의 관찰자·학습자·감정적 목격자. 예수님이나 바울을 재현하지 않음.",
+  "line_mode": "clean",
+  "silhouette": "작은 둥근 머리와 짧은 팔다리의 3등신 chibi 비율, 전체 캔버스의 20–40% 크기",
+  "face": "따뜻한 베이지 피부, 작은 검은 점눈 두 개, 짧은 타원형 코, 작은 입, 둥근 검정 테 안경",
+  "hair": "짧은 짙은 밤색 머리, 오른쪽 위로 한 가닥 삐친 작은 컬",
+  "clothing": "딥 틸색 짧은 여행 망토, 머스터드색 튜닉, 코랄색 목도리, 짙은 갈색 단화",
+  "accessories": "어깨를 가로지르는 작은 가죽 가방과 빈 두루마리 한 개",
+  "palette": ["#174C4F", "#E0A83A", "#E7745B", "#6A4636", "#F1D2A8"],
+  "stable_expression_range": ["호기심", "놀람", "차분한 이해", "따뜻한 초대"],
+  "must_never_change": ["밤색 짧은 머리와 오른쪽 컬", "둥근 검정 안경", "틸 망토·머스터드 튜닉·코랄 목도리", "작은 가죽 가방", "점눈 중심의 단순한 얼굴", "성경 속 실존 인물처럼 보이지 않는 허구 인물"],
+  "anchor_prompt": "Use case: illustration-story. Asset type: character reference anchor for a Korean sermon slide deck. Primary request: Create one consistent fictional mini pen-doodle guide character called the Gospel Traveler, not Jesus, not Paul, and not any real historical person. Scene/backdrop: a large pure-white page with no scenery. Subject: tiny chibi 3/4 full-body figure with a round head, warm beige skin, small black dot eyes, a tiny oval nose, a small mouth, round black glasses, short dark chestnut hair with one small curl sticking up on the right. Style/medium: EXTREMELY cute mini pen-doodle illustration, clean hand-drawn black ink with closed shapes and slight organic irregularity, simple clean flat color fills, sparse details, never vector or clip art. Composition/framing: centered, generous white space, subject 20–40% of the canvas. Lighting/mood: calm, curious, welcoming. Color palette: deep teal short travel cloak, mustard tunic, coral scarf, dark brown shoes, small brown leather crossbody satchel, one blank scroll. Text (verbatim): none. Constraints: keep the exact silhouette, face, hair, glasses, outfit, palette, satchel, and scroll stable for all future scenes; no text, no watermark, no historical costume, no halo, no cross on clothing, no resemblance to a biblical person. Avoid: extra characters, detailed background, photorealism, anime eyes, complex shadows, gore, religious iconography that identifies a real person. Aspect ratio: square."
+}

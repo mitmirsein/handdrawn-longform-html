@@ -1,0 +1,14 @@
+{
+  "name": "handdrawn-longform-html",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:html": "python3 scripts/render_html.py",
+    "build:deck": "python3 scripts/build_deck.py",
+    "build:pdf": "node scripts/render_pdf.mjs",
+    "test": "python3 -m unittest discover -s tests -p 'test*.py' -v"
+  },
+  "devDependencies": {
+    "playwright-core": "1.62.1"
+  }
+}
