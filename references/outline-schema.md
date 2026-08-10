@@ -33,6 +33,7 @@ The renderer consumes a reviewed, source-relative specification:
   "aspect_ratio": "16:9",
   "language": "ko",
   "line_mode": "clean",
+  "character_anchor": "character/anchor.png",
   "theme": "rough-diary",
   "font_files": {
     "display": "fonts/GangwonEdu_OTFBoldA.woff",
@@ -59,7 +60,10 @@ is optional for general fixtures, but when present it must contain relative
 missing or if the PDF falls back to another text font. Speaker notes are kept
 in HTML’s Notes panel and are intentionally omitted from printed pages.
 
-Validate before rendering. Reject missing headlines, duplicate IDs, non-relative image paths, empty slide arrays, and slides without a source line, reference, or explicit `source_lines` exception for a pure cover/transition.
+Validate before rendering. Reject missing headlines, duplicate IDs, non-relative image paths,
+image decks without a run-local `character_anchor`, anchors outside `character/` or missing
+from disk, empty slide arrays, and slides without a source line, reference, or explicit
+`source_lines` exception for a pure cover/transition.
 
 ## Outline review gate
 

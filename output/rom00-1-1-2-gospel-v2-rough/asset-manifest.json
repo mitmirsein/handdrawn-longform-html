@@ -2,7 +2,7 @@
   "character_anchor": {
     "path": "character/anchor.png",
     "role": "모든 러프 장면의 고정 캐릭터 참조",
-    "style_reference": "/var/folders/rs/7gfjhyr173d2q_rfb40jcwym0000gn/T/paseo-attachments-NvAt1f/ab3a7655b318e3baed7aa744e181cc25c6c11fb41b0f11ed5a6e20255011a132.png",
+    "reference_note": "원본 스타일 참고 이미지는 외부 입력이며 실행 폴더에 복사하지 않음",
     "generated_with": "built-in image generation tool",
     "identity_lock": "검정 단발, 점눈 옆얼굴, 주황 튜닉, 딥 틸색 가방, 작은 신체 비율, rough black pen line"
   },

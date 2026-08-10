@@ -15,6 +15,26 @@ EXEMPT_SOURCE_ROLES = {"cover", "transition"}
 REQUIRED = {"id", "headline", "one_sentence_takeaway", "role"}
 
 
+def validate_character_anchor(data: dict, base: Path, slides: list[object]) -> list[str]:
+    """Require a portable, run-local anchor whenever the deck has scene images."""
+
+    has_scene_images = any(isinstance(slide, dict) and slide.get("image") for slide in slides)
+    value = data.get("character_anchor")
+    if value is None:
+        return ["character_anchor required when slides include images"] if has_scene_images else []
+    if not isinstance(value, str) or not value:
+        return ["character_anchor must be a relative path"]
+
+    relative = Path(value)
+    if relative.is_absolute() or ".." in relative.parts:
+        return ["character_anchor must be a relative path under character/"]
+    if relative.parts[:1] != ("character",):
+        return ["character_anchor must be under character/"]
+    if not (base / relative).is_file():
+        return [f"character_anchor not found: {value}"]
+    return []
+
+
 def validate(path: Path) -> list[str]:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -30,6 +50,7 @@ def validate(path: Path) -> list[str]:
     if not isinstance(slides, list) or not slides:
         return ["slides must be a non-empty array"]
     base = path.parent
+    errors.extend(validate_character_anchor(data, base, slides))
     theme = data.get("theme")
     if theme is not None and theme not in THEMES:
         errors.append(f"unsupported theme {theme!r}")

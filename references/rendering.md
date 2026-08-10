@@ -18,6 +18,7 @@ Do not hard-code Claude, Codex, Gemini, a home directory, a provider API key, or
 
 - Complete `source-analysis` and `slide-outline` before a paid image batch.
 - Confirm page count, aspect ratio, line mode, image count, and theme before rendering.
+- Confirm `character_anchor` exists under the run’s `character/` directory before scene generation.
 - Keep the user’s character anchor in every generated scene.
 - Validate `deck.json` before calling `scripts/build_deck.py`.
 - Review visual output for claim fidelity, source labels, legible Korean, character continuity, whitespace, and file integrity.
