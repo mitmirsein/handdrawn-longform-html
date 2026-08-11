@@ -63,3 +63,8 @@ python3 scripts/build_deck.py output/<slug>/deck.json \
 ## 출처 및 레퍼런스 (Acknowledgements)
 
 - 영감을 받은 레포지토리: [`moongiadventures-dev/handdrawn-ppt`](https://github.com/moongiadventures-dev/handdrawn-ppt)
+
+## 라이선스 (License)
+
+이 프로젝트는 [MIT License](LICENSE)에 따라 라이선스가 부여됩니다.
+

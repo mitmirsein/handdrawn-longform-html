@@ -1,5 +1,6 @@
 {
   "name": "handdrawn-longform-html",
+  "license": "MIT",
   "private": true,
   "type": "module",
   "scripts": {
