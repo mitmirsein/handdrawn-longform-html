@@ -14,7 +14,7 @@ APPLICATION     recommended response or practice
 NEEDS-REVIEW    unresolved or disputed
 ```
 
-Never “correct” the author silently. Add a note such as “원문 주장; 별도 검증 필요” and offer a source check when it affects the slide’s conclusion.
+Never “correct” the author silently. Internal verification flags and review notes (e.g., `NEEDS-REVIEW`, `검토 필요`) must be recorded in `claim-ledger.json`, `risk_or_open_question`, or `speaker_notes`. They must NEVER be printed on the public slide footer (`source` or `primary_references`).
 
 ## Bible and other primary texts
 

@@ -14,7 +14,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.make_transparent import make_transparent  # noqa: E402
-from scripts.render_html import render  # noqa: E402
+from scripts.render_html import render, source_label  # noqa: E402
 from scripts.validate_outline import validate  # noqa: E402
 
 try:
@@ -28,6 +28,24 @@ CURRENT = ROOT / "output/rom00-1-1-2-gospel-v2-rough/deck-gangwon-bold.json"
 
 
 class HtmlPipelineTests(unittest.TestCase):
+    def test_source_label_sanitizes_internal_review_flags(self) -> None:
+        slide1 = {"source": "마태복음 2:13 · 원문 추정·검토 필요"}
+        self.assertEqual(source_label(slide1), "마태복음 2:13")
+        slide2 = {"source": "사도행전 11:26", "primary_references": ["명명 주체·어원 검토 필요"]}
+        self.assertEqual(source_label(slide2), "사도행전 11:26")
+
+    def test_validate_rejects_internal_review_flags_in_source(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            data = json.loads(FIXTURE.read_text(encoding="utf-8"))
+            data["slides"][0]["source"] = "마태복음 2:13 · 검토 필요"
+            deck = root / "deck.json"
+            deck.write_text(json.dumps(data), encoding="utf-8")
+
+            errors = validate(deck)
+
+        self.assertTrue(any("internal review flag" in e for e in errors), errors)
+
     def test_fixture_remains_valid(self) -> None:
         self.assertEqual(validate(FIXTURE), [])
 

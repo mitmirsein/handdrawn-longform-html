@@ -37,6 +37,7 @@
 - [ ] 각 외부 사실, 날짜, 인명, 숫자, 번역·어원 주장이 검증되었거나 `NEEDS-REVIEW`로 표시되었는가?
 - [ ] 직접 인용, 원문 주장, 외부 사실, 해석, 추론, 적용이 서로 구분되는가?
 - [ ] 화면의 source footer와 speaker notes의 출처가 실제 source line/reference와 일치하는가?
+- [ ] 슬라이드 하단 source footer에 '검토 필요', 'NEEDS-REVIEW' 등 내부 검수 메모가 누출되지 않고 정제된 출처 표기만 노출되는가? → [source-and-citation.md](source-and-citation.md)
 - [ ] 성서·기타 1차 텍스트의 본문, 번역, 발표자의 해석이 섞여 단정적으로 보이지 않는가?
 - [ ] 민감한 종교·역사·집단 비교가 희화화나 무근거 일반화가 되지 않았는가? → [source-and-citation.md](source-and-citation.md)
 

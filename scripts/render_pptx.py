@@ -97,12 +97,30 @@ def _image(slide, path: Path, x, y, w, h, Inches):
     slide.shapes.add_picture(str(path), Inches(x + (w - iw) / 2), Inches(y + (h - ih) / 2), width=Inches(iw), height=Inches(ih))
 
 
+REVIEW_NOTE_KEYWORDS = ("검토 필요", "검증 필요", "확인 필요", "NEEDS-REVIEW", "검토필요", "검증필요")
+REVIEW_NOTE_PREFIXES = ("원문 추정", "원문 사례", "원문 주장", "어휘·역사", "명명 주체", "어원")
+
+
+def clean_source_text(text: str) -> str:
+    if not text:
+        return ""
+    raw_parts = [p.strip() for p in str(text).split("·")]
+    valid_parts = []
+    for part in raw_parts:
+        if any(kw in part for kw in REVIEW_NOTE_KEYWORDS) or part in REVIEW_NOTE_PREFIXES:
+            continue
+        if part:
+            valid_parts.append(part)
+    return " · ".join(valid_parts)
+
+
 def _source(slide, item, body_font, Inches, Pt, RGBColor):
-    source = item.get("source")
+    raw_source = item.get("source") or ""
+    source = clean_source_text(raw_source)
     lines = item.get("source_lines")
     if lines:
         suffix = f" · 원문 {min(lines)}–{max(lines)}행"
-        source = f"{source or ''}{suffix}".strip(" ·")
+        source = f"{source}{suffix}".strip(" ·")
     if source:
         frame = _box(slide, M, 6.78, W - 2 * M, 0.32, Inches)
         _write(frame, source, font=body_font, size=8.5, color=GREY, Pt=Pt, RGBColor=RGBColor, line=1.05)

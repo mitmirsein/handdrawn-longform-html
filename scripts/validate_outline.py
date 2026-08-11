@@ -99,6 +99,11 @@ def validate(path: Path) -> list[str]:
                 errors.append(f"{prefix}: image not found: {image}")
         if len(str(slide.get("headline", ""))) > 72:
             errors.append(f"{prefix}: headline is too long for a slide")
+        source_text = str(slide.get("source", ""))
+        refs = slide.get("primary_references") or []
+        ref_text = " ".join(str(r) for r in refs) if isinstance(refs, list) else ""
+        if any(flag in source_text or flag in ref_text for flag in ("검토 필요", "검증 필요", "NEEDS-REVIEW", "확인 필요")):
+            errors.append(f"{prefix}: public source or primary_references contains internal review flag; review notes belong in speaker_notes or claim-ledger.json")
     return errors
 
 

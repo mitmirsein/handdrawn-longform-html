@@ -57,9 +57,26 @@ def rel_asset(source: Path, output: Path) -> str:
     return os.path.relpath(source.resolve(), output.parent.resolve()).replace(os.sep, "/")
 
 
+REVIEW_NOTE_KEYWORDS = ("검토 필요", "검증 필요", "확인 필요", "NEEDS-REVIEW", "검토필요", "검증필요")
+REVIEW_NOTE_PREFIXES = ("원문 추정", "원문 사례", "원문 주장", "어휘·역사", "명명 주체", "어원")
+
+
+def clean_source_text(text: str) -> str:
+    if not text:
+        return ""
+    raw_parts = [p.strip() for p in str(text).split("·")]
+    valid_parts = []
+    for part in raw_parts:
+        if any(kw in part for kw in REVIEW_NOTE_KEYWORDS) or part in REVIEW_NOTE_PREFIXES:
+            continue
+        if part:
+            valid_parts.append(part)
+    return " · ".join(valid_parts)
+
+
 def source_label(slide: dict) -> str:
     parts: list[str] = []
-    source = plain(slide.get("source")).strip()
+    source = clean_source_text(plain(slide.get("source")).strip())
     if source:
         parts.append(source)
     lines = slide.get("source_lines")
@@ -67,7 +84,10 @@ def source_label(slide: dict) -> str:
         parts.append("원문 행 " + ", ".join(str(line) for line in lines))
     refs = slide.get("primary_references")
     if isinstance(refs, list) and refs:
-        parts.append(" · ".join(str(ref) for ref in refs))
+        for ref in refs:
+            cleaned_ref = clean_source_text(str(ref).strip())
+            if cleaned_ref:
+                parts.append(cleaned_ref)
     return " · ".join(parts)
 
 
