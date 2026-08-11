@@ -2,7 +2,6 @@
 /** Convert a static deck HTML file to a 16:9 PDF with local Chrome fonts. */
 
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
@@ -36,6 +35,11 @@ function findChrome(explicit) {
   const found = candidates.find((candidate) => fs.existsSync(candidate));
   if (!found) throw new Error(`Chrome executable not found. Tried: ${candidates.join(", ")}`);
   return found;
+}
+
+function portablePath(target, baseDir) {
+  const relative = path.relative(baseDir, target);
+  return (relative || path.basename(target)).split(path.sep).join("/");
 }
 
 function commandOutput(command, args) {
@@ -136,8 +140,14 @@ async function main() {
     });
     const fontsRequired = await page.evaluate(() => document.documentElement.dataset.fontRequired === "true");
     const preflight = pdfPreflight(output, check.pageCount, fontsRequired);
+    const manifestBase = path.dirname(output);
     fs.writeFileSync(`${output}.preflight.json`, JSON.stringify({
-      input, output, chrome, host: os.hostname(), check, pdfInfo: preflight.info, pdffonts: preflight.fonts,
+      input: portablePath(input, manifestBase),
+      output: portablePath(output, manifestBase),
+      chrome: path.basename(chrome),
+      check,
+      pdfInfo: preflight.info,
+      pdffonts: preflight.fonts,
     }, null, 2));
     console.log(`PDF rendered: ${output}`);
     console.log(`PDF preflight: ${check.pageCount} pages, 960 x 540 pt, fonts=${fontsRequired ? "strict" : "standard"}`);

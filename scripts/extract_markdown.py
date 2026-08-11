@@ -91,8 +91,15 @@ def extract(path: Path) -> dict:
         for match in WIKILINK.finditer(line):
             links.append({"line": number, "target": match.group(1), "kind": "wikilink"})
 
+    import os
+
+    try:
+        source_path = os.path.relpath(path, Path.cwd()).replace(os.sep, "/")
+    except ValueError:
+        source_path = str(path)
+
     return {
-        "source": str(path),
+        "source": source_path,
         "title": frontmatter.get("title") or (headings[0]["text"] if headings else path.stem),
         "frontmatter": frontmatter,
         "line_count": len(lines),

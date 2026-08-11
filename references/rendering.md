@@ -35,6 +35,9 @@ slide, while speaker notes remain in the browser-only Notes panel.
 `scripts/render_pdf.mjs` prints the HTML without browser chrome. The PDF page
 size is 960×540 points (16:9), and a strict-font deck must contain the declared
 Gangwon Education fonts without MalgunGothic, Calibri, or other fallback faces.
+The generated `.preflight.json` stores artifact paths relative to its own output
+directory and records only the Chrome executable name, never the local user
+directory or host name.
 After images and fonts load, the HTML runtime computes
 `window.__DECK_LAYOUT_ISSUES__`. The PDF adapter rejects any non-empty result
 before writing the final PDF, so a visual overlap is fixed in the renderer or
