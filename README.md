@@ -70,3 +70,8 @@ not search for sources or generate images.
 Before calling a deck complete, use
 [`references/review-checklist.md`](references/review-checklist.md) as the single
 sign-off sheet and follow its links for domain-specific decisions.
+
+## Acknowledgements
+
+Inspired by [`moongiadventures-dev/handdrawn-ppt`](https://github.com/moongiadventures-dev/handdrawn-ppt).
+
