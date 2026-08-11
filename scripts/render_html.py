@@ -160,8 +160,10 @@ def slide_content(slide: dict, index: int, total: int, deck: dict, base: Path, o
     elif layout == "full":
         main = (
             '<div class="full-layout">'
+            '<div class="full-copy">'
             f'<h1>{headline}</h1>'
             f'<p class="takeaway full-takeaway">{takeaway}</p>'
+            "</div>"
             f'{art(image, base, output, "art-full")}'
             f'<div class="full-caption">{esc(visible or "")}</div>'
             "</div>"
@@ -170,9 +172,11 @@ def slide_content(slide: dict, index: int, total: int, deck: dict, base: Path, o
         main = (
             '<div class="quote-layout">'
             '<div class="quote-mark">“</div>'
+            '<div class="quote-copy">'
             f'<h1>{headline}</h1>'
             f'<p class="takeaway">{takeaway}</p>'
             f'<div class="body-copy quote-body">{body}</div>'
+            "</div>"
             f'{art(image, base, output, "art-quote")}'
             "</div>"
         )
@@ -180,20 +184,25 @@ def slide_content(slide: dict, index: int, total: int, deck: dict, base: Path, o
         row_class = f"row-{layout}"
         main = (
             f'<div class="structured-layout {row_class}">'
+            '<div class="structured-copy-col">'
             f'<h1>{headline}</h1>'
             f'<p class="takeaway">{takeaway}</p>'
             f'<div class="structured-copy">{body}</div>'
             f'{token_row(visible, "structured-tokens")}'
+            "</div>"
             f'{art(image, base, output, "art-structured")}'
             "</div>"
         )
     else:
+        art_class = "has-art" if image else "no-art"
         main = (
             '<div class="content-layout">'
+            f'<div class="content-copy {art_class}">'
             f'<h1>{headline}</h1>'
             f'<p class="takeaway">{takeaway}</p>'
             f'<div class="body-copy">{body}</div>'
             f'{token_row(visible, "content-tokens")}'
+            "</div>"
             f'{art(image, base, output, "art-content")}'
             "</div>"
         )
@@ -318,8 +327,7 @@ button {{ font: inherit; }}
   background-image: radial-gradient(rgba(80, 68, 52, .10) .6px, transparent .6px);
   background-size: 7px 7px;
 }}
-.brand-mark, .page-count, .role-badge, .slide-anchor, .source-footer,
-.eyebrow, h1, p, .body-copy, .structured-copy, .full-caption, .token-row, .art {{
+.brand-mark, .page-count, .role-badge, .slide-anchor, .source-footer, .full-caption, .art {{
   position: absolute; z-index: 2;
 }}
 .brand-mark {{ left: 120px; top: 42px; display: flex; align-items: center; gap: 20px;
@@ -335,22 +343,28 @@ button {{ font: inherit; }}
 h1 {{ margin: 0; font-family: var(--display); font-weight: 700; font-size: 82px; line-height: 1.10;
   letter-spacing: -.025em; }}
 .takeaway {{ margin: 0; font-family: var(--body); font-weight: 300; font-size: 29px; line-height: 1.45; color: #5f5a53; }}
-.body-copy, .structured-copy {{ font-family: var(--body); font-weight: 300; font-size: 35px; line-height: 1.35; }}
-.eyebrow {{ left: 120px; top: 190px; color: var(--muted); font-family: var(--body); font-weight: 300; font-size: 23px; letter-spacing: .04em; }}
-.title-layout h1 {{ left: 120px; top: 245px; width: 950px; font-size: 88px; }}
-.title-layout .takeaway {{ left: 125px; top: 505px; width: 690px; }}
-.title-layout .body-copy {{ left: 125px; top: 690px; width: 620px; color: var(--accent); }}
-.content-layout h1, .structured-layout h1, .full-layout h1, .quote-layout h1 {{ left: 120px; top: 175px; width: 1050px; }}
-.content-layout .takeaway, .structured-layout .takeaway {{ left: 125px; top: 320px; width: 680px; }}
-.content-layout .body-copy, .structured-layout .structured-copy {{ left: 125px; top: 490px; width: 620px; color: #3b3834; }}
-.content-layout .content-tokens, .structured-layout .structured-tokens {{ left: 125px; top: 655px; width: 700px; }}
-.full-layout h1 {{ width: 1300px; top: 175px; }}
-.full-layout .full-takeaway {{ left: 125px; top: 300px; width: 850px; }}
+.body-copy, .structured-copy {{ font-family: var(--body); font-weight: 300; font-size: 35px; line-height: 1.35; margin: 0; }}
+.eyebrow {{ color: var(--muted); font-family: var(--body); font-weight: 300; font-size: 23px; letter-spacing: .04em; margin: 0; }}
+
+.title-copy, .content-copy, .structured-copy-col, .full-copy, .quote-copy {{
+  position: absolute; z-index: 2; display: flex; flex-direction: column;
+}}
+.title-copy {{ left: 120px; top: 190px; width: 950px; gap: 20px; }}
+.title-copy h1 {{ font-size: 88px; }}
+.title-copy .body-copy {{ color: var(--accent); }}
+
+.content-copy, .structured-copy-col {{ left: 120px; top: 175px; width: 680px; gap: 20px; }}
+.content-copy.no-art {{ width: 1050px; }}
+.content-copy .body-copy, .structured-copy-col .structured-copy {{ color: #3b3834; }}
+
+.full-copy {{ left: 120px; top: 175px; width: 1300px; gap: 16px; }}
 .full-layout .full-caption {{ left: 125px; top: 875px; font-family: var(--display); font-weight: 700; font-size: 40px; color: var(--accent); }}
+
 .quote-mark {{ position: absolute; z-index: 2; left: 125px; top: 170px; color: var(--accent); font-family: var(--display); font-weight: 700; font-size: 170px; line-height: .7; }}
-.quote-layout h1 {{ left: 220px; top: 245px; width: 750px; font-size: 91px; }}
-.quote-layout .takeaway {{ left: 225px; top: 500px; width: 770px; }}
-.quote-layout .quote-body {{ left: 225px; top: 710px; width: 650px; color: var(--accent); }}
+.quote-copy {{ left: 220px; top: 225px; width: 750px; gap: 20px; }}
+.quote-copy h1 {{ font-size: 91px; line-height: 1.14; }}
+.quote-copy .quote-body {{ color: var(--accent); }}
+
 .art {{ margin: 0; z-index: 1; }}
 .art img {{ width: 100%; height: 100%; object-fit: contain; display: block; }}
 .art-title {{ left: 1100px; top: 340px; width: 700px; height: 530px; }}
@@ -464,18 +478,36 @@ h1 {{ margin: 0; font-family: var(--display); font-weight: 700; font-size: 82px;
     pages.forEach((page, pageIndex) => {{
       const art = page.querySelector('.art');
       const layout = page.querySelector('.title-layout, .content-layout, .structured-layout, .full-layout, .quote-layout');
-      if (!art || !layout) return;
-      const textNodes = [...layout.querySelectorAll('h1, .takeaway, .body-copy, .structured-copy, .token-row, .full-caption, .quote-body')];
-      textNodes.forEach((textNode) => {{
-        if (!textNode.textContent.trim() || !rectanglesOverlap(art, textNode)) return;
-        issues.push({{
-          page: pageIndex + 1,
-          slide: page.dataset.slideId || '',
-          image: art.className,
-          text: textNode.className || textNode.tagName.toLowerCase(),
-          textContent: textNode.textContent.trim().slice(0, 80),
+      if (!layout) return;
+      const textNodes = [...layout.querySelectorAll('h1, .takeaway, .body-copy, .structured-copy, .token-row, .full-caption, .quote-body')].filter((node) => node.textContent.trim());
+
+      if (art) {{
+        textNodes.forEach((textNode) => {{
+          if (!rectanglesOverlap(art, textNode)) return;
+          issues.push({{
+            page: pageIndex + 1,
+            slide: page.dataset.slideId || '',
+            image: art.className,
+            text: textNode.className || textNode.tagName.toLowerCase(),
+            textContent: textNode.textContent.trim().slice(0, 80),
+          }});
         }});
-      }});
+      }}
+
+      for (let i = 0; i < textNodes.length; i += 1) {{
+        for (let j = i + 1; j < textNodes.length; j += 1) {{
+          if (!rectanglesOverlap(textNodes[i], textNodes[j])) continue;
+          issues.push({{
+            page: pageIndex + 1,
+            slide: page.dataset.slideId || '',
+            textOverlap: true,
+            first: textNodes[i].className || textNodes[i].tagName.toLowerCase(),
+            second: textNodes[j].className || textNodes[j].tagName.toLowerCase(),
+            firstText: textNodes[i].textContent.trim().slice(0, 40),
+            secondText: textNodes[j].textContent.trim().slice(0, 40),
+          }});
+        }}
+      }}
     }});
     return issues;
   }}

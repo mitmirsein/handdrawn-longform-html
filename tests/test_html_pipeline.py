@@ -91,6 +91,15 @@ class HtmlPipelineTests(unittest.TestCase):
 
         self.assertIn("character_anchor not found: character/anchor.png", errors)
 
+    def test_render_wraps_copy_in_flex_containers(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "rendered.html"
+            render(FIXTURE, output)
+            document = output.read_text(encoding="utf-8")
+            self.assertIn('class="content-copy', document)
+            self.assertIn('class="title-copy"', document)
+            self.assertIn('class="content-copy no-art"', document)
+
 
 if __name__ == "__main__":
     unittest.main()
