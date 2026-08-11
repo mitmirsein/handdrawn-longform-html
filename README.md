@@ -18,6 +18,39 @@
 
 하위 참조 문서들은 독립된 스킬로 실행되지 않으며, [`SKILL.md`](SKILL.md)에 정의된 워크플로우에 따라 필요한 시점에 순차적으로 참조됩니다.
 
+## 빠른 사용법 (Quick Usage)
+
+1. **원문 구조 추출**:
+   마크다운 원문 파일의 텍스트 구조를 결정론적으로 추출합니다.
+   ```sh
+   python3 scripts/extract_markdown.py source.md -o output/<slug>/source-analysis.json
+   ```
+
+2. **슬라이드 아웃라인 사전 검증**:
+   작성된 `deck.json` 명세의 필수 필드, 폰트 및 캐릭터 앵커 경로를 검증합니다.
+   ```sh
+   python3 scripts/validate_outline.py output/<slug>/deck.json
+   ```
+
+3. **일러스트레이션 자동 투명화 (선택)**:
+   생성된 이미지의 외곽 흰색 배경을 투명 PNG로 변환합니다.
+   ```sh
+   python3 scripts/make_transparent.py output/<slug>/illustrations/
+   ```
+
+4. **HTML / PDF 슬라이드 빌드**:
+   검증된 덱과 이미지 자산을 바탕으로 정적 HTML과 PDF를 생성합니다 (`--make-transparent` 옵션을 함께 전달하면 이미지 투명 배경 처리까지 한 번에 수행됩니다).
+   ```sh
+   python3 scripts/build_deck.py output/<slug>/deck.json \
+     -o output/<slug>/<slug> --make-transparent --targets html,pdf
+   ```
+
+5. **브라우저 뷰어 단축키**:
+   생성된 HTML 파일을 브라우저로 열어 다음 단축키로 제어할 수 있습니다:
+   - `←` / `→` 또는 `PageUp` / `PageDown`: 슬라이드 이전 / 다음 이동
+   - `N`: 발표자 스피커 노트 패널 토글
+   - `P`: 인쇄 대화상자 호출
+
 ## 실행 명령
 
 Node.js 의존성을 설치합니다:
