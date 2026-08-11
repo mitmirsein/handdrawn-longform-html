@@ -13,8 +13,14 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from scripts.make_transparent import make_transparent  # noqa: E402
 from scripts.render_html import render  # noqa: E402
 from scripts.validate_outline import validate  # noqa: E402
+
+try:
+    from PIL import Image
+except ImportError:
+    Image = None
 
 
 FIXTURE = ROOT / "tests/fixtures/romans/rom00-1-1-2.deck.json"
@@ -99,6 +105,27 @@ class HtmlPipelineTests(unittest.TestCase):
             self.assertIn('class="content-copy', document)
             self.assertIn('class="title-copy"', document)
             self.assertIn('class="content-copy no-art"', document)
+
+    @unittest.skipIf(Image is None, "Pillow is not installed")
+    def test_make_transparent_converts_outer_white_background_to_alpha(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            input_path = Path(temporary) / "input.png"
+            output_path = Path(temporary) / "output.png"
+
+            # Create a 10x10 image: white background with black center box
+            img = Image.new("RGBA", (10, 10), (255, 255, 255, 255))
+            for x in range(3, 7):
+                for y in range(3, 7):
+                    img.putpixel((x, y), (0, 0, 0, 255))
+            img.save(input_path)
+
+            make_transparent(input_path, output_path)
+            res = Image.open(output_path)
+
+            # Outer background pixel (0,0) should be transparent (alpha 0)
+            self.assertEqual(res.getpixel((0, 0))[3], 0)
+            # Inner black pixel (4,4) should remain fully opaque (alpha 255)
+            self.assertEqual(res.getpixel((4, 4)), (0, 0, 0, 255))
 
 
 if __name__ == "__main__":

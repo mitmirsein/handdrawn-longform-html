@@ -18,7 +18,7 @@ Translate the page’s argument into one concrete scene. Specify character actio
 Use this base language and select exactly one line mode:
 
 ```text
-EXTREMELY cute mini pen-doodle illustration, tiny chibi subject on a large pure-white page, naive dot-eye face, simple clean flat color fills, sparse article-relevant micro-scene, lots of empty white space.
+EXTREMELY cute mini pen-doodle illustration, tiny chibi subject isolated on a clean transparent background, PNG cutout line-art sticker style, no background fill, naive dot-eye face, simple clean flat color fills, sparse article-relevant micro-scene.
 ```
 
 `rough`: visibly jittery black ink, uneven pressure, tiny contour gaps, incomplete closures, imperfect pen control.

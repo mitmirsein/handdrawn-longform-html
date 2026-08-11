@@ -47,11 +47,19 @@ deck layout rather than patched in a generated HTML file.
 
 - `content` and structured layouts reserve a left copy/token rail and a right
   illustration rail.
+- Text elements (`h1`, `takeaway`, `body-copy`, `token-row`) are wrapped in flex
+  column containers (`.content-copy`, `.title-copy`, `.structured-copy-col`,
+  `.full-copy`, `.quote-copy`) so headlines and takeaways never overlap even when
+  titles wrap to multiple lines.
+- Illustrations use transparent PNGs (via `scripts/make_transparent.py` or
+  `--make-transparent`) and `mix-blend-mode: multiply` in CSS so line art blends
+  seamlessly into the slide background.
 - `full` layouts reserve a bottom caption rail below the illustration.
 - `quote` and `title` layouts keep the illustration to the right of the text
   block.
-- The browser preflight checks the artwork rectangle against headings,
-  takeaways, body copy, token rows, quote bodies, and full captions.
+- The browser preflight checks rectangles against headings, takeaways, body copy,
+  token rows, quote bodies, and full captions for both text-on-art and text-on-text
+  overlaps.
 
 Manual review still matters: inspect every `full` page and a representative
 `content`, `structured`, and `quote` page in the browser at the active slide,

@@ -60,6 +60,7 @@ python3 scripts/validate_outline.py output/<slug>/deck.json
 - [ ] 모든 장면에서 anchor의 얼굴, 머리, 의상, 비율, 팔레트, 역할이 유지되는가?
 - [ ] 캐릭터가 예수, 바울, 실존 인물 또는 보호 대상 인물을 불필요하게 impersonate하지 않는가?
 - [ ] 이미지가 장식이 아니라 주장·관계·시간·전환을 설명하는가?
+- [ ] 일러스트레이션이 하얀 박스가 아닌 투명 배경(Transparent PNG) 또는 `mix-blend-mode`를 통해 슬라이드에 자연스럽게 통합되었는가? → [character-continuity.md](character-continuity.md)
 - [ ] 지도·timeline·comparison·flow·table이 실제 구조를 명확하게 하는 경우에만 사용되었는가?
 - [ ] 모든 페이지를 나란히 놓고 캐릭터 drift, 여백, 시각적 반복을 검토했는가? → [character-continuity.md](character-continuity.md)
 
@@ -70,9 +71,10 @@ python3 scripts/validate_outline.py output/<slug>/deck.json
 - [ ] `window.__DECK_READY__`가 true가 되고 모든 이미지가 로드되는가?
 - [ ] PDF 페이지 수가 덱과 같고, 페이지 크기가 960×540pt(16:9)인가?
 - [ ] 잘린 콘텐츠, overflow, 빈 페이지, 깨진 이미지가 없는가?
+- [ ] 메인 타이틀(`h1`)과 서브 문장(`takeaway`) 및 본문이 플렉스 컬럼 컨테이너로 감싸여 텍스트 상호 간 겹침(Text-to-text overlap)이 방지되었는가?
 - [ ] `full` 페이지의 캡션이 이미지 아래의 예약된 캡션 레일에 있고 이미지와 교차하지 않는가?
 - [ ] `content`/`comparison`/`timeline`/`flow`/`table`의 본문·토큰이 오른쪽 이미지 레일과 교차하지 않는가?
-- [ ] 브라우저 레이아웃 preflight의 `layoutIssues`가 빈 배열인가?
+- [ ] 브라우저 레이아웃 preflight의 `layoutIssues`(텍스트-삽화 및 텍스트-텍스트 겹침)가 빈 배열인가?
 - [ ] `font_files`가 선언된 경우 해당 폰트만 PDF에 embedding되며 fallback이 없는가?
 - [ ] 대표 페이지와 마지막 페이지를 실제 렌더링 이미지로 확인했는가?
 
