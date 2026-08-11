@@ -6,8 +6,8 @@
   "line_mode": "clean",
   "theme": "rough-diary",
   "font_files": {
-    "display": "fonts/GangwonEdu_OTFBoldA.woff",
-    "body": "fonts/GangwonEdu_OTFLightA.woff"
+    "display": "../fonts/GangwonEdu_OTFBoldA.woff",
+    "body": "../fonts/GangwonEdu_OTFLightA.woff"
   },
   "slides": [
     {

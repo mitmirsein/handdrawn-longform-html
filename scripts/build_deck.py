@@ -35,7 +35,11 @@ def main() -> int:
         help="comma-separated targets: html, pdf, pptx (default: html,pdf)",
     )
     parser.add_argument("--allow-overwrite", action="store_true", help="allow replacing outputs at the target basename")
-    parser.add_argument("--make-transparent", action="store_true", help="automatically convert illustrations to transparent PNGs before build")
+    parser.add_argument(
+        "--make-transparent",
+        action="store_true",
+        help="convert only deck-referenced scene images to transparent PNGs in place",
+    )
     args = parser.parse_args()
 
     deck = args.deck.expanduser().resolve()
@@ -43,14 +47,14 @@ def main() -> int:
         print(f"deck not found: {deck}", file=sys.stderr)
         return 2
 
-    if args.make_transparent:
-        make_transparent_script = Path(__file__).with_name("make_transparent.py")
-        run([sys.executable, str(make_transparent_script), str(deck.parent)])
     errors = validate(deck)
     if errors:
         print("outline validation failed:", file=sys.stderr)
         print("\n".join(f"- {error}" for error in errors), file=sys.stderr)
         return 2
+    if args.make_transparent:
+        make_transparent_script = Path(__file__).with_name("make_transparent.py")
+        run([sys.executable, str(make_transparent_script), str(deck), "--in-place"])
 
     targets = {part.strip().lower() for part in args.targets.split(",") if part.strip()}
     unknown = targets - TARGETS

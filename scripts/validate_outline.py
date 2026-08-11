@@ -36,6 +36,22 @@ def validate_character_anchor(data: dict, base: Path, slides: list[object]) -> l
     return []
 
 
+def validate_local_file(value: object, base: Path, label: str, *, allow_parent: bool = True) -> list[str]:
+    """Validate a relative file reference and resolve it from the deck directory."""
+
+    if not isinstance(value, str) or not value:
+        return [f"{label} must be a relative path"]
+    relative = Path(value)
+    if relative.is_absolute():
+        return [f"{label} must be a relative path"]
+    if not allow_parent and ".." in relative.parts:
+        return [f"{label} must stay under the deck directory"]
+    resolved = (base / relative).resolve()
+    if not resolved.is_file():
+        return [f"{label} not found: {value}"]
+    return []
+
+
 def validate(path: Path) -> list[str]:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -62,10 +78,7 @@ def validate(path: Path) -> list[str]:
         else:
             for key in ("display", "body"):
                 value = font_files.get(key)
-                if not isinstance(value, str) or not value:
-                    errors.append(f"font_files.{key} must be a relative path")
-                elif Path(value).is_absolute():
-                    errors.append(f"font_files.{key} must be a relative path")
+                errors.extend(validate_local_file(value, base, f"font_files.{key}"))
     seen: set[str] = set()
     for index, slide in enumerate(slides, 1):
         prefix = f"slide {index}"
@@ -94,10 +107,8 @@ def validate(path: Path) -> list[str]:
                 errors.append(f"{prefix}: source_lines must be positive integers")
         image = slide.get("image")
         if image is not None:
-            if not isinstance(image, str) or Path(image).is_absolute():
-                errors.append(f"{prefix}: image must be a relative path")
-            elif not (base / image).is_file():
-                errors.append(f"{prefix}: image not found: {image}")
+            image_errors = validate_local_file(image, base, f"{prefix}: image", allow_parent=False)
+            errors.extend(image_errors)
         if len(str(slide.get("headline", ""))) > 72:
             errors.append(f"{prefix}: headline is too long for a slide")
         source_text = str(slide.get("source", ""))

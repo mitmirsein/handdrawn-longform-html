@@ -51,9 +51,11 @@ deck layout rather than patched in a generated HTML file.
   column containers (`.content-copy`, `.title-copy`, `.structured-copy-col`,
   `.full-copy`, `.quote-copy`) so headlines and takeaways never overlap even when
   titles wrap to multiple lines.
-- Illustrations use transparent PNGs (via `scripts/make_transparent.py` or
-  `--make-transparent`) and `mix-blend-mode: multiply` in CSS so line art blends
-  seamlessly into the slide background.
+- Illustrations use `mix-blend-mode: multiply` in CSS by default so opaque reviewed
+  PNGs blend into the slide background. If real alpha is required, use
+  `scripts/make_transparent.py <deck.json> --in-place` or `--make-transparent`;
+  the converter processes only slide-referenced scene images and never the anchor
+  or stale screenshot files.
 - `full` layouts reserve a bottom caption rail below the illustration.
 - `quote` and `title` layouts keep the illustration to the right of the text
   block.
@@ -63,7 +65,8 @@ deck layout rather than patched in a generated HTML file.
 
 Manual review still matters: inspect every `full` page and a representative
 `content`, `structured`, and `quote` page in the browser at the active slide,
-then confirm the PDF preflight reports `layoutIssues: []`.
+then confirm the PDF preflight reports `layoutIssues: []` and run
+`python3 scripts/audit_project.py --require-output`.
 
 `scripts/render_pptx.py` remains a compatibility adapter. It must only
 assemble reviewed local images and text, and is not the source of truth for

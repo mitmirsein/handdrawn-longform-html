@@ -1,0 +1,4 @@
+# Optional Python adapters used by the complete workflow.
+# The HTML renderer itself uses only the Python standard library.
+Pillow>=11.0,<13
+python-pptx>=1.0,<2

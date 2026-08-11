@@ -346,7 +346,7 @@ button {{ font: inherit; }}
 .slide-page.is-active {{ display: block; }}
 .canvas {{
   width: {CANVAS_WIDTH}px; height: {CANVAS_HEIGHT}px; position: absolute;
-  inset: 0 auto auto 0; transform: scale({PAGE_WIDTH / CANVAS_WIDTH});
+  inset: 0 auto auto 0; transform: scale({PAGE_WIDTH / CANVAS_WIDTH}); isolation: isolate;
   transform-origin: top left; overflow: hidden; background: var(--paper);
 }}
 .canvas::before {{
@@ -393,7 +393,9 @@ h1 {{ margin: 0; font-family: var(--display); font-weight: 700; font-size: 82px;
 .quote-copy .quote-body {{ color: var(--accent); }}
 
 .art {{ margin: 0; z-index: 1; }}
-.art img {{ width: 100%; height: 100%; object-fit: contain; display: block; }}
+/* Opaque white illustration canvases must disappear into the paper even when
+   the optional Pillow preprocessing step is not available. */
+.art img {{ width: 100%; height: 100%; object-fit: contain; display: block; mix-blend-mode: multiply; }}
 .art-title {{ left: 1100px; top: 340px; width: 700px; height: 530px; }}
 /* Reserve a right-side art rail so body copy and tokens never sit on the image. */
 .art-content, .art-structured {{ left: 850px; top: 290px; width: 950px; height: 600px; }}

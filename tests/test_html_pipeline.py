@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.make_transparent import make_transparent  # noqa: E402
+from scripts.make_transparent import make_transparent, process_directory  # noqa: E402
 from scripts.render_html import render, source_label  # noqa: E402
 from scripts.validate_outline import validate  # noqa: E402
 
@@ -24,7 +24,7 @@ except ImportError:
 
 
 FIXTURE = ROOT / "tests/fixtures/romans/rom00-1-1-2.deck.json"
-CURRENT = ROOT / "output/rom00-1-1-2-gospel-v2-rough/deck-gangwon-bold.json"
+EXAMPLE = ROOT / "assets/deck.example.json"
 
 
 class HtmlPipelineTests(unittest.TestCase):
@@ -74,19 +74,30 @@ class HtmlPipelineTests(unittest.TestCase):
             self.assertIn("Reserve a right-side art rail", document)
             self.assertIn("bottom caption rail below the artwork", document)
 
-    def test_current_deck_declares_local_exact_fonts(self) -> None:
-        self.assertTrue(CURRENT.is_file(), CURRENT)
-        self.assertEqual(validate(CURRENT), [])
-        data = json.loads(CURRENT.read_text(encoding="utf-8"))
+    def test_example_deck_declares_local_exact_fonts(self) -> None:
+        self.assertTrue(EXAMPLE.is_file(), EXAMPLE)
+        self.assertEqual(validate(EXAMPLE), [])
+        data = json.loads(EXAMPLE.read_text(encoding="utf-8"))
         self.assertEqual(data.get("theme"), "rough-diary")
-        self.assertEqual(data.get("character_anchor"), "character/anchor.png")
-        self.assertTrue((CURRENT.parent / data["character_anchor"]).is_file())
         self.assertEqual(
             set(data.get("font_files", {})),
             {"display", "body"},
         )
         for relative in data["font_files"].values():
-            self.assertTrue((CURRENT.parent / relative).is_file(), relative)
+            self.assertTrue((EXAMPLE.parent / relative).resolve().is_file(), relative)
+
+    def test_validate_rejects_missing_declared_font(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            data = json.loads(FIXTURE.read_text(encoding="utf-8"))
+            data["font_files"] = {"display": "fonts/missing-bold.woff", "body": "fonts/missing-light.woff"}
+            deck = root / "deck.json"
+            deck.write_text(json.dumps(data), encoding="utf-8")
+
+            errors = validate(deck)
+
+        self.assertIn("font_files.display not found: fonts/missing-bold.woff", errors)
+        self.assertIn("font_files.body not found: fonts/missing-light.woff", errors)
 
     def test_image_deck_requires_run_local_character_anchor(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -136,6 +147,7 @@ class HtmlPipelineTests(unittest.TestCase):
             self.assertIn('class="content-copy', document)
             self.assertIn('class="title-copy"', document)
             self.assertIn('class="content-copy no-art"', document)
+            self.assertIn("mix-blend-mode: multiply", document)
 
     @unittest.skipIf(Image is None, "Pillow is not installed")
     def test_make_transparent_converts_outer_white_background_to_alpha(self) -> None:
@@ -157,6 +169,31 @@ class HtmlPipelineTests(unittest.TestCase):
             self.assertEqual(res.getpixel((0, 0))[3], 0)
             # Inner black pixel (4,4) should remain fully opaque (alpha 255)
             self.assertEqual(res.getpixel((4, 4)), (0, 0, 0, 255))
+
+    @unittest.skipIf(Image is None, "Pillow is not installed")
+    def test_directory_transparency_only_processes_deck_scene_images(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "illustrations").mkdir()
+            (root / "character").mkdir()
+            scene = Image.new("RGBA", (4, 4), (255, 255, 255, 255))
+            scene.putpixel((1, 1), (0, 0, 0, 255))
+            scene.save(root / "illustrations/scene.png")
+            scene.save(root / "character/anchor.png")
+            scene.save(root / "stale-screenshot.png")
+            deck = root / "deck.json"
+            deck.write_text(json.dumps({
+                "character_anchor": "character/anchor.png",
+                "slides": [{"image": "illustrations/scene.png"}],
+            }), encoding="utf-8")
+            destination = root / "transparent"
+
+            processed = process_directory(root, deck_path=deck, output_directory=destination)
+
+            self.assertEqual(processed, [(destination / "illustrations/scene.png").resolve()])
+            self.assertTrue((destination / "illustrations/scene.png").is_file())
+            self.assertFalse((destination / "character/anchor.png").exists())
+            self.assertFalse((destination / "stale-screenshot.png").exists())
 
 
 if __name__ == "__main__":

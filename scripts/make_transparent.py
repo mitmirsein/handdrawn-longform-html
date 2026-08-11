@@ -8,6 +8,7 @@ clothing, paper props) while making outer canvas background transparent.
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from collections import deque
 from pathlib import Path
@@ -16,6 +17,9 @@ try:
     from PIL import Image
 except ImportError:
     Image = None
+
+
+IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg"}
 
 
 def make_transparent(input_path: Path, output_path: Path | None = None, threshold: int = 240) -> Path:
@@ -74,31 +78,107 @@ def make_transparent(input_path: Path, output_path: Path | None = None, threshol
     return target_path
 
 
-def process_directory(directory: Path, threshold: int = 240) -> list[Path]:
-    """Recursively process all PNG/JPG images in a directory."""
+def deck_image_paths(deck_path: Path) -> list[Path]:
+    """Return only the scene images referenced by a deck."""
 
-    processed = []
-    for ext in ("*.png", "*.jpg", "*.jpeg", "*.PNG", "*.JPG", "*.JPEG"):
-        for path in directory.rglob(ext):
-            make_transparent(path, path, threshold=threshold)
-            processed.append(path)
+    data = json.loads(deck_path.read_text(encoding="utf-8"))
+    base = deck_path.parent.resolve()
+    paths: set[Path] = set()
+    for slide in data.get("slides", []):
+        image = slide.get("image") if isinstance(slide, dict) else None
+        if not image:
+            continue
+        path = (base / str(image)).resolve()
+        if not path.is_file():
+            raise FileNotFoundError(f"image not found: {image}")
+        if not path.is_relative_to(base):
+            raise ValueError(f"image must stay under the deck directory: {image}")
+        if path.suffix.lower() in IMAGE_SUFFIXES:
+            paths.add(path)
+    return sorted(paths)
+
+
+def directory_image_paths(directory: Path, deck_path: Path | None = None) -> list[Path]:
+    """Find safe scene assets without touching anchors or stale screenshots."""
+
+    if deck_path is not None:
+        return deck_image_paths(deck_path)
+    scene_dir = directory / "illustrations" if (directory / "illustrations").is_dir() else directory
+    return sorted(
+        path for path in scene_dir.iterdir()
+        if path.is_file() and path.suffix.lower() in IMAGE_SUFFIXES and not path.name.startswith(".")
+    )
+
+
+def process_directory(
+    directory: Path,
+    threshold: int = 240,
+    *,
+    deck_path: Path | None = None,
+    output_directory: Path | None = None,
+) -> list[Path]:
+    """Process referenced scene images, optionally into a separate directory."""
+
+    directory = directory.expanduser().resolve()
+    output_root = output_directory.expanduser().resolve() if output_directory else None
+    processed: list[Path] = []
+    for path in directory_image_paths(directory, deck_path):
+        target = path
+        if output_root is not None:
+            target = output_root / path.relative_to(directory)
+        make_transparent(path, target, threshold=threshold)
+        processed.append(target)
     return processed
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("target", type=Path, help="image file or directory to process")
-    parser.add_argument("-o", "--output", type=Path, help="output PNG path (for single file)")
+    parser.add_argument("target", type=Path, help="image file, deck.json, or output directory")
+    parser.add_argument("-o", "--output", type=Path, help="output PNG path for a single image")
+    parser.add_argument("--output-dir", type=Path, help="separate output directory for a deck/output directory")
+    parser.add_argument("--in-place", action="store_true", help="replace referenced scene images in place")
     parser.add_argument("--threshold", type=int, default=240, help="white background RGB threshold (default: 240)")
     args = parser.parse_args()
 
     target = args.target.expanduser().resolve()
     if target.is_file():
-        result = make_transparent(target, args.output, threshold=args.threshold)
+        if target.suffix.lower() == ".json":
+            try:
+                results = process_directory(
+                    target.parent,
+                    threshold=args.threshold,
+                    deck_path=target,
+                    output_directory=None if args.in_place else args.output_dir or target.parent.with_name(f"{target.parent.name}-transparent"),
+                )
+            except (FileNotFoundError, ValueError, RuntimeError, json.JSONDecodeError) as exc:
+                print(str(exc), file=sys.stderr)
+                return 2
+            print(f"processed {len(results)} referenced scene images")
+            return 0
+        output = args.output
+        if output is None and not args.in_place:
+            output = target.with_name(f"{target.stem}.transparent.png")
+        result = make_transparent(target, output, threshold=args.threshold)
         print(f"transparent PNG saved: {result}")
     elif target.is_dir():
-        results = process_directory(target, threshold=args.threshold)
-        print(f"processed {len(results)} images in {target}")
+        deck_path = target / "deck.json"
+        if not deck_path.is_file():
+            deck_path = None
+        output_directory = None
+        if not args.in_place:
+            output_directory = args.output_dir or target.with_name(f"{target.name}-transparent")
+        try:
+            results = process_directory(
+                target,
+                threshold=args.threshold,
+                deck_path=deck_path,
+                output_directory=output_directory,
+            )
+        except (FileNotFoundError, ValueError, RuntimeError, json.JSONDecodeError) as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
+        destination = "in place" if output_directory is None else str(output_directory)
+        print(f"processed {len(results)} referenced scene images -> {destination}")
     else:
         print(f"target not found: {target}", file=sys.stderr)
         return 2

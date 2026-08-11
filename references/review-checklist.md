@@ -95,6 +95,9 @@ python3 scripts/build_deck.py output/<slug>/deck.json \
 - [ ] `character/anchor.*`, `illustrations/`, 선언된 `fonts/`, HTML, PDF가 output 경로에 있는가?
 - [ ] 출력 파일이 source를 덮어쓰지 않았고, 임시 파일·캐시·로컬 의존성이 커밋 대상에서 제외되었는가?
 - [ ] 테스트와 Python 구문 검사가 통과했는가?
+- [ ] `python3 scripts/audit_project.py --require-output`가 통과했는가?
+- [ ] 각 실행 폴더에 canonical `deck.json` 1개와 HTML 1개만 남아 있는가?
+- [ ] `python3 scripts/package_share.py output/<slug> -o share/<slug>.zip`로 상대경로 공유 패키지를 만들 수 있는가?
 
 ```sh
 npm test
@@ -104,7 +107,7 @@ git status --short
 ```
 
 - [ ] 남은 `REVIEW`/`BLOCKED` 항목이 없거나, 담당자·기한·판정 근거가 기록되었는가?
-- [ ] 최종 커밋에 검수 문서와 산출물이 함께 포함되었는가?
+- [ ] 최종 커밋에는 소스·검수 문서가 포함되고, 생성 산출물은 의도적으로 선택했는가? 생성 산출물 공유는 share bundle로 재현 가능한가?
 
 ## 최종 판정
 

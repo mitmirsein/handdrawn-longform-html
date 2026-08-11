@@ -61,6 +61,10 @@
      -o output/<slug>/<slug> --make-transparent --targets html,pdf
    ```
 
+   `--make-transparent`는 덱에서 실제로 참조하는 `illustrations/` 이미지만
+   명시적으로 제자리 변환합니다. 앵커, 임시 스크린샷, 다른 파일은 건드리지
+   않습니다.
+
 3. **브라우저 뷰어 단축키**:
    생성된 HTML 슬라이드 뷰어에서 다음 단축키를 사용할 수 있습니다:
    - `←` / `→` 또는 `PageUp` / `PageDown`: 슬라이드 이전 / 다음 이동
@@ -75,10 +79,21 @@ Node.js 의존성을 설치합니다:
 npm install
 ```
 
+전체 기능(투명 배경 변환 및 선택적 PPTX)을 사용하려면 Python 의존성도 설치합니다:
+
+```sh
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+```
+
+이후 Python 명령은 `.venv/bin/python`으로 실행하면 선택 기능까지 포함해
+동일한 환경에서 재현할 수 있습니다.
+
 경량 파이썬 검사를 실행합니다:
 
 ```sh
 npm test
+python3 scripts/audit_project.py
 ```
 
 검증을 통과한 덱의 아웃라인을 확인하고 **HTML** 및 **PDF** 결과물을 빌드합니다. `--allow-overwrite` 플래그가 없으면 기존 출력 파일을 덮어쓰지 않습니다.
@@ -87,6 +102,8 @@ npm test
 python3 scripts/validate_outline.py output/<slug>/deck.json
 python3 scripts/build_deck.py output/<slug>/deck.json \
   -o output/<slug>/<slug>-html --targets html,pdf
+
+python3 scripts/audit_project.py --require-output
 ```
 
 개별 어댑터도 직접 호출할 수 있습니다:
@@ -105,6 +122,21 @@ python3 scripts/build_deck.py output/<slug>/deck.json \
   -o output/<slug>/<slug> --targets pptx
 ```
 
+## 공유 패키지
+
+`output/`은 생성물 중복과 대형 바이너리의 Git 유입을 막기 위해 기본적으로
+추적하지 않습니다. 완성된 덱을 공유할 때는 canonical HTML, PDF, 앵커,
+일러스트레이션, 폰트, 검수 문서를 상대경로로 묶는 패키지 명령을 사용합니다:
+
+```sh
+python3 scripts/package_share.py output/<slug> -o share/<slug>
+python3 scripts/package_share.py output/<slug> -o share/<slug>.zip
+```
+
+패키지에는 하나의 `deck.json`과 하나의 canonical HTML만 포함되며,
+`share-manifest.json`이 포함 자산과 상대경로를 기록합니다. 여러 HTML이나
+검수 실패 덱이 남아 있으면 패키징이 중단됩니다.
+
 ## 산출물 구조 규격
 
 원문 분석(`source-analysis.md`), 논지 그래프(`argument-map.md`), 주장 원장(`claim-ledger.json`), 슬라이드 아웃라인(`slide-outline.md`), 덱 명세(`deck.json`), 캐릭터 앵커(`character/anchor.png`), 일러스트레이션(`illustrations/`), 폰트(`fonts/`), HTML, PDF 파일은 모두 `output/<slug>/` 경로에 함께 보관됩니다. 렌더러는 검증된 로컬 자산만 조립하며, 원문 탐색이나 이미지 자동 생성을 수행하지 않습니다.
@@ -118,4 +150,3 @@ python3 scripts/build_deck.py output/<slug>/deck.json \
 ## 라이선스 (License)
 
 이 프로젝트는 [MIT License](LICENSE)에 따라 라이선스가 부여됩니다.
-

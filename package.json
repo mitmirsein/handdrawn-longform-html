@@ -7,6 +7,8 @@
     "build:html": "python3 scripts/render_html.py",
     "build:deck": "python3 scripts/build_deck.py",
     "build:pdf": "node scripts/render_pdf.mjs",
+    "audit": "python3 scripts/audit_project.py",
+    "package:share": "python3 scripts/package_share.py",
     "test": "python3 -m unittest discover -s tests -p 'test*.py' -v"
   },
   "devDependencies": {
