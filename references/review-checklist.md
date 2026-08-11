@@ -93,6 +93,9 @@ python3 scripts/build_deck.py output/<slug>/deck.json \
 
 - [ ] `source-analysis.md`, `argument-map.md`, `claim-ledger.json`, `slide-outline.md`, `deck.json`이 존재하는가?
 - [ ] `character/anchor.*`, `illustrations/`, 선언된 `fonts/`, HTML, PDF가 output 경로에 있는가?
+- [ ] `asset-plan.json`이 있으면 모든 장면의 참조가 동일한 `character/anchor.png`이고, 공급자 키·절대경로가 없는가?
+- [ ] 앵커가 없던 실행은 `character/anchor.png`를 먼저 생성·승인했으며, 장면 생성 후 앵커 해시가 고정되었는가?
+- [ ] 이미지 내부에는 한국어·영어·숫자·라벨·로고·워터마크가 없고, 모든 발표 텍스트가 HTML에 있는가?
 - [ ] 출력 파일이 source를 덮어쓰지 않았고, 임시 파일·캐시·로컬 의존성이 커밋 대상에서 제외되었는가?
 - [ ] 테스트와 Python 구문 검사가 통과했는가?
 - [ ] `python3 scripts/audit_project.py --require-output`가 통과했는가?

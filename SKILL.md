@@ -77,11 +77,26 @@ For Scripture-heavy material, keep the cited passage, translation, and the speak
 
 ### 5. Lock the character and translate meaning into scenes
 
+`character_anchor` is required before scene generation, but it may be supplied by the user or generated from the editorial brief.
+
+After the outline gate, run `scripts/asset_pipeline.py plan` for the reviewed
+`deck.json`. If `character-anchor` is pending, generate exactly one anchor with
+the host image tool or configured adapter, save/import it through the pipeline,
+and only then process the scene jobs. For every scene, pass the locked anchor as
+the first and only character reference; use `accept` for host-native tools and
+`run --adapter` for executable adapters.
+
 Require a character reference image for image generation. Create one approved anchor, record stable identity cues, and use that exact anchor for every page. Never chain generated pages as references. The character may be narrator, observer, participant, or emotional witness; keep that role stable unless the outline explicitly changes it.
 
 Use metaphors, maps, timelines, relationships, and object interactions for sacred or sensitive subjects. Do not make the character impersonate a real person, Jesus, Paul, or another protected/central figure unless the user explicitly requests that treatment. Read [character-continuity.md](references/character-continuity.md).
 
 ### 6. Render and review
+
+The asset pipeline emits `asset-plan.json` and accepts either a host-native
+image tool or an executable `handdrawn-image/v1` adapter; it does not
+hard-code a provider or model. If an image provider or renderer is unavailable,
+leave the valid plan, prompt/reference manifest, and pending status; do not
+claim generated assets or an exported deck.
 
 Generate only the approved number of image assets. Use the selected hand-drawn mode and aspect ratio consistently. Review in this order: argument fidelity, source/citation accuracy, page hierarchy, Korean text legibility, character identity, visual meaning, line mode, whitespace, and file integrity.
 

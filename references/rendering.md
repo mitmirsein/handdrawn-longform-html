@@ -5,14 +5,14 @@ The editorial artifacts are mandatory; rendering is an adapter. Do not let a mis
 ## Capability order
 
 1. Detect the host’s local file, image-generation, web/search, and slide-export capabilities.
-2. Use the host’s native image tool with the anchor and required reference images when available.
-3. Otherwise use an installed MCP/CLI/API adapter that documents image inputs and output paths.
-4. If image generation is unavailable, write prompts and a reference manifest and leave placeholders.
+2. Use the host’s native image tool with the anchor and required reference images when available; import its reviewed files through the asset pipeline.
+3. Otherwise use an installed executable `handdrawn-image/v1` adapter that documents image inputs and output paths.
+4. If image generation is unavailable, write `asset-plan.json` with prompts and reference paths and leave the jobs pending.
 5. Render a static HTML deck from the reviewed `deck.json`.
 6. Convert HTML to PDF with the installed system Chrome through Playwright; preflight page size, image loading, overflow, and exact font embedding.
 7. Use the legacy PPTX adapter only when `pptx` is explicitly included in the build targets.
 
-Do not hard-code Claude, Codex, Gemini, a home directory, a provider API key, or a model name in the core workflow. Use paths relative to this skill for bundled files and paths relative to the user’s project for generated artifacts.
+Do not hard-code Claude, Codex, Gemini, Imagen, Nano Banana, a home directory, a provider API key, or a model name in the core workflow. Use the provider-neutral contract in [image-generation.md](image-generation.md), paths relative to this skill for bundled files, and paths relative to the user’s project for generated artifacts.
 
 ## Rendering gates
 

@@ -4,12 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build:html": "python3 scripts/render_html.py",
-    "build:deck": "python3 scripts/build_deck.py",
+    "build:html": "sh scripts/python.sh scripts/render_html.py",
+    "build:deck": "sh scripts/python.sh scripts/build_deck.py",
     "build:pdf": "node scripts/render_pdf.mjs",
-    "audit": "python3 scripts/audit_project.py",
-    "package:share": "python3 scripts/package_share.py",
-    "test": "python3 -m unittest discover -s tests -p 'test*.py' -v"
+    "assets:plan": "sh scripts/python.sh scripts/asset_pipeline.py plan",
+    "assets:generate": "sh scripts/python.sh scripts/asset_pipeline.py run",
+    "assets:accept": "sh scripts/python.sh scripts/asset_pipeline.py accept",
+    "assets:status": "sh scripts/python.sh scripts/asset_pipeline.py status",
+    "audit": "sh scripts/python.sh scripts/audit_project.py",
+    "package:share": "sh scripts/python.sh scripts/package_share.py",
+    "test": "sh scripts/python.sh -m unittest discover -s tests -p 'test*.py' -v"
   },
   "devDependencies": {
     "playwright-core": "1.62.1"

@@ -54,6 +54,10 @@ def package_directory(run_dir: Path, destination: Path, *, require_pdf: bool) ->
     references.update(REQUIRED_DOCS)
     if (run_dir / "asset-manifest.json").is_file():
         references.add("asset-manifest.json")
+    if (run_dir / "asset-plan.json").is_file():
+        references.add("asset-plan.json")
+    if (run_dir / "character/profile.json").is_file():
+        references.add("character/profile.json")
 
     anchor = data.get("character_anchor")
     if anchor:

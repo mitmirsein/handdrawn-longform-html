@@ -13,6 +13,7 @@
 - `rendering.md` — HTML/PDF 렌더링 기능 및 레이아웃 사전 검증(Preflight) 수칙
 - `source-and-citation.md` — 근거, 출처 및 인용 구분 수칙
 - `character-continuity.md` — 캐릭터 앵커 및 장면 일관성 지침
+- `image-generation.md` — 공급자 비종속 이미지 생성 어댑터 계약
 - `genre-adapters.md` — 설교, 에세이, 칼럼, 강의 등 장르별 변환 어댑터
 - `review-checklist.md` — 최종 검수 수칙 및 자체 평가 관문
 
@@ -40,8 +41,7 @@
   /handdrawn-longform-html my-sermon.md
   ```
 
-> 💡 **캐릭터 자동 생성 안내**:
-> 별도의 캐릭터 참고 이미지를 제공하지 않으면, AI가 작업 대상 문서의 분야·톤·청중 분석 내용에 맞춰 어울리는 손그림 앵커 캐릭터를 자동으로 기획 및 생성하여 슬라이드 전체의 일관성을 유지합니다.
+> 💡 **캐릭터 자동 생성 안내**: 참고 이미지가 없으면 자산 계획 단계에서 원문 분석·아웃라인을 바탕으로 허구의 관찰자 캐릭터 앵커 생성 작업을 자동으로 만듭니다. 실제 이미지 생성은 호스트 이미지 도구 또는 설정된 이미지 어댑터가 담당합니다.
 
 ---
 
@@ -71,6 +71,33 @@
    - `N`: 발표자 스피커 노트 패널 토글
    - `P`: 인쇄 대화상자 호출
 
+### 이미지 자산 자동 생성
+
+이미지 생성은 렌더러와 분리된 공급자 비종속 파이프라인으로 실행합니다.
+Imagen, Nano Banana 등은 `handdrawn-image/v1` JSON 어댑터로 연결하며, 코어
+파이프라인은 특정 모델명이나 API SDK를 직접 호출하지 않습니다.
+
+```sh
+# 검수된 deck.json에서 캐릭터·장면 작업을 계획
+npm run assets:plan -- output/<slug>/deck.json
+
+# 외부 어댑터 실행 파일로 자동 생성
+npm run assets:generate -- output/<slug>/asset-plan.json \
+  --adapter /path/to/handdrawn-image-adapter
+
+# 호스트 내장 이미지 도구가 만든 파일을 작업에 반영
+npm run assets:accept -- output/<slug>/asset-plan.json \
+  character-anchor /path/to/anchor.png
+
+npm run assets:status -- output/<slug>/asset-plan.json
+```
+
+앵커가 없는 경우 `character/anchor.png` 생성 작업이 먼저 실행되고, 그
+앵커가 모든 장면에 직접 참조로 전달됩니다. 이전 장면 이미지를 다음 장면의
+참조로 연결하지 않습니다. 생성 완료 후에만 `deck.json`이 확정되고 기존
+HTML/PDF 빌드가 실행됩니다. 어댑터가 없으면 계획·프롬프트·참조 목록만
+남으며 생성 완료로 보고하지 않습니다.
+
 ## 실행 명령
 
 Node.js 의존성을 설치합니다:
@@ -82,12 +109,12 @@ npm install
 전체 기능(투명 배경 변환 및 선택적 PPTX)을 사용하려면 Python 의존성도 설치합니다:
 
 ```sh
-python3 -m venv .venv
+if [ ! -x .venv/bin/python ]; then python3 -m venv .venv; fi
 .venv/bin/python -m pip install -r requirements.txt
 ```
 
-이후 Python 명령은 `.venv/bin/python`으로 실행하면 선택 기능까지 포함해
-동일한 환경에서 재현할 수 있습니다.
+`.venv`가 로컬 또는 공유 가상환경을 가리키더라도, 이후 Python 명령은
+`.venv/bin/python`으로 실행해 동일한 환경을 사용합니다.
 
 경량 파이썬 검사를 실행합니다:
 
@@ -139,9 +166,9 @@ python3 scripts/package_share.py output/<slug> -o share/<slug>.zip
 
 ## 산출물 구조 규격
 
-원문 분석(`source-analysis.md`), 논지 그래프(`argument-map.md`), 주장 원장(`claim-ledger.json`), 슬라이드 아웃라인(`slide-outline.md`), 덱 명세(`deck.json`), 캐릭터 앵커(`character/anchor.png`), 일러스트레이션(`illustrations/`), 폰트(`fonts/`), HTML, PDF 파일은 모두 `output/<slug>/` 경로에 함께 보관됩니다. 렌더러는 검증된 로컬 자산만 조립하며, 원문 탐색이나 이미지 자동 생성을 수행하지 않습니다.
+원문 분석(`source-analysis.md`), 논지 그래프(`argument-map.md`), 주장 원장(`claim-ledger.json`), 슬라이드 아웃라인(`slide-outline.md`), 덱 명세(`deck.json`), 자산 계획(`asset-plan.json`), 캐릭터 앵커(`character/anchor.png`), 일러스트레이션(`illustrations/`), 폰트(`fonts/`), HTML, PDF 파일은 모두 `output/<slug>/` 경로에 함께 보관됩니다. 렌더러는 검증된 로컬 자산만 조립하며, 이미지 생성은 별도의 공급자 어댑터 계층에서 수행합니다.
 
-최종 완료 보고 전에는 [`references/review-checklist.md`](references/review-checklist.md)를 통해 모든 관문이 통과되었는지 확인합니다.
+최종 완료 보고 전에는 [`references/review-checklist.md`](references/review-checklist.md)를 통해 모든 관문이 통과되었는지 확인합니다. 이미지 생성 어댑터의 세부 계약은 [`references/image-generation.md`](references/image-generation.md)를 따릅니다.
 
 ## 출처 및 레퍼런스 (Acknowledgements)
 

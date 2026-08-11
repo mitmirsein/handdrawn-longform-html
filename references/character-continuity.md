@@ -2,7 +2,9 @@
 
 ## Anchor record
 
-Create one approved anchor before scene generation. Record:
+Create one approved anchor before scene generation. If the user did not provide a
+reference, generate one from the editorial creative brief and store it at
+`output/<slug>/character/anchor.png`. Record:
 
 - silhouette, hair, face cues, clothing, accessories, signature prop, palette;
 - proportions, eye spacing, limb length, and stable expression range;
@@ -30,7 +32,8 @@ Keep the character to roughly 20–40% of the canvas. Avoid dense posters, gener
 ## Drift controls
 
 - Generate every page from the approved anchor, never from the previous page.
+- Lock the anchor hash after the first scene is accepted; changing it requires a new run or an explicit replacement operation.
 - If a page drifts, remove that page from references and regenerate from the anchor.
 - After two failed edits, restart the page instead of extending the edit chain.
 - Review all pages side by side for face, hair, clothing, proportions, palette, and narrative role.
-- Keep generated Korean text short. Put long quotes and explanations in ordinary slide text or notes.
+- Do not generate Korean, English, or other embedded copy inside raster images. Put all visible text in ordinary slide text or notes.

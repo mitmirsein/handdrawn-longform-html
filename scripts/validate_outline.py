@@ -79,6 +79,8 @@ def validate(path: Path) -> list[str]:
             for key in ("display", "body"):
                 value = font_files.get(key)
                 errors.extend(validate_local_file(value, base, f"font_files.{key}"))
+    asset_generation = data.get("asset_generation")
+    generated_assets = isinstance(asset_generation, dict)
     seen: set[str] = set()
     for index, slide in enumerate(slides, 1):
         prefix = f"slide {index}"
@@ -106,6 +108,8 @@ def validate(path: Path) -> list[str]:
             if not isinstance(source_lines, list) or not all(isinstance(n, int) and n > 0 for n in source_lines):
                 errors.append(f"{prefix}: source_lines must be positive integers")
         image = slide.get("image")
+        if generated_assets and str(slide.get("asset_mode") or "illustration").lower() != "none" and not image:
+            errors.append(f"{prefix}: image required after asset generation")
         if image is not None:
             image_errors = validate_local_file(image, base, f"{prefix}: image", allow_parent=False)
             errors.extend(image_errors)

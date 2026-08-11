@@ -28,6 +28,7 @@ ABSOLUTE_MARKERS = re.compile("|".join(re.escape(marker) for marker in _host_mar
 STALE_SCREENSHOT = re.compile(r"-html-\d+_\d+\.png$", re.IGNORECASE)
 TEXT_SUFFIXES = {".html", ".json", ".md", ".py", ".mjs", ".yaml", ".yml", ".txt", ".css"}
 REQUIRED_DOCS = {"source-analysis.md", "argument-map.md", "claim-ledger.json", "slide-outline.md"}
+ASSET_PLAN_SCHEMA = "handdrawn-assets/v1"
 
 
 class AssetReferenceParser(HTMLParser):
@@ -104,6 +105,57 @@ def check_preflight(path: Path) -> list[str]:
     return errors
 
 
+def check_asset_plan(path: Path) -> list[str]:
+    """Check optional generation plans without requiring generated assets."""
+
+    errors: list[str] = []
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return [f"invalid asset plan {path.relative_to(ROOT)}: {exc}"]
+    if data.get("schema_version") != ASSET_PLAN_SCHEMA:
+        errors.append(f"unsupported asset plan schema: {path.relative_to(ROOT)}")
+    deck = data.get("deck")
+    if not isinstance(deck, str) or Path(deck).is_absolute() or ".." in Path(deck).parts:
+        errors.append(f"asset plan {path.relative_to(ROOT)} has a non-portable deck path")
+    character = data.get("character")
+    if not isinstance(character, dict):
+        errors.append(f"asset plan {path.relative_to(ROOT)} is missing character")
+    else:
+        anchor = character.get("path")
+        if not isinstance(anchor, str) or Path(anchor).is_absolute() or ".." in Path(anchor).parts:
+            errors.append(f"asset plan {path.relative_to(ROOT)} has a non-portable character path")
+        elif not anchor.startswith("character/"):
+            errors.append(f"asset plan {path.relative_to(ROOT)} character path is outside character/")
+    jobs = data.get("jobs")
+    if not isinstance(jobs, list):
+        return errors + [f"asset plan {path.relative_to(ROOT)} is missing jobs"]
+    seen: set[str] = set()
+    for job in jobs:
+        if not isinstance(job, dict):
+            errors.append(f"asset plan {path.relative_to(ROOT)} contains a non-object job")
+            continue
+        job_id = job.get("job_id")
+        if not isinstance(job_id, str) or not job_id:
+            errors.append(f"asset plan {path.relative_to(ROOT)} contains a job without an id")
+        elif job_id in seen:
+            errors.append(f"asset plan {path.relative_to(ROOT)} contains duplicate job {job_id}")
+        seen.add(str(job_id))
+        target = job.get("target")
+        if not isinstance(target, str) or Path(target).is_absolute() or ".." in Path(target).parts:
+            errors.append(f"asset plan {path.relative_to(ROOT)} has a non-portable target")
+        references = job.get("references", [])
+        if not isinstance(references, list):
+            errors.append(f"asset plan {path.relative_to(ROOT)} has invalid references for {job_id}")
+        else:
+            for reference in references:
+                if not isinstance(reference, str) or Path(reference).is_absolute() or ".." in Path(reference).parts:
+                    errors.append(f"asset plan {path.relative_to(ROOT)} has a non-portable reference for {job_id}")
+            if job.get("kind") == "scene_illustration" and references != ["character/anchor.png"]:
+                errors.append(f"asset plan {path.relative_to(ROOT)} does not lock scenes to the anchor: {job_id}")
+    return errors
+
+
 def check_output(output_root: Path) -> list[str]:
     errors: list[str] = []
     if not output_root.exists():
@@ -120,6 +172,9 @@ def check_output(output_root: Path) -> list[str]:
             errors.append(f"multiple deck manifests in one run directory: {directory.relative_to(ROOT)}")
         if not (directory / "deck.json").is_file():
             continue
+        asset_plan = directory / "asset-plan.json"
+        if asset_plan.is_file():
+            errors.extend(check_asset_plan(asset_plan))
         missing_docs = sorted(REQUIRED_DOCS - {path.name for path in files})
         errors.extend(f"{directory.relative_to(ROOT)} missing {name}" for name in missing_docs)
         html_files = sorted(directory.glob("*.html"))
