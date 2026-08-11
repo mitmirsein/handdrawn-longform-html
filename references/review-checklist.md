@@ -46,6 +46,7 @@
 - [ ] 모든 슬라이드에 고유한 `id`, headline, takeaway, role이 있는가?
 - [ ] 각 슬라이드에 source line/reference가 있거나 cover/transition 예외가 명시되어 있는가?
 - [ ] visible text, speaker notes, visual scene, character action, transition, risk가 논지와 맞는가?
+- [ ] body와 visible_text가 동일하여 동일한 텍스트가 화면에 중복 렌더링되지 않는가? → [outline-schema.md](outline-schema.md)
 - [ ] layout, theme, aspect ratio가 지원 범위 안에 있는가?
 - [ ] 자동 검증을 통과했는가?
 

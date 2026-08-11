@@ -46,6 +46,19 @@ class HtmlPipelineTests(unittest.TestCase):
 
         self.assertTrue(any("internal review flag" in e for e in errors), errors)
 
+    def test_validate_rejects_identical_body_and_visible_text(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            data = json.loads(FIXTURE.read_text(encoding="utf-8"))
+            data["slides"][0]["body"] = "아우구스티누스 · 루터 · 칼 바르트"
+            data["slides"][0]["visible_text"] = "아우구스티누스 · 루터 · 칼 바르트"
+            deck = root / "deck.json"
+            deck.write_text(json.dumps(data), encoding="utf-8")
+
+            errors = validate(deck)
+
+        self.assertTrue(any("visible_text is identical to body" in e for e in errors), errors)
+
     def test_fixture_remains_valid(self) -> None:
         self.assertEqual(validate(FIXTURE), [])
 

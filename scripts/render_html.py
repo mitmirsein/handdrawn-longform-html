@@ -142,10 +142,17 @@ def slide_content(slide: dict, index: int, total: int, deck: dict, base: Path, o
     layout = plain(slide.get("layout", "content"))
     headline = esc(slide.get("headline", ""))
     takeaway = esc(slide.get("one_sentence_takeaway", ""))
-    body = esc(slide.get("body", ""))
-    visible = slide.get("visible_text")
-    if visible is None:
-        visible = slide.get("body")
+    body_raw = plain(slide.get("body", "")).strip()
+    body = esc(body_raw)
+    visible_raw = slide.get("visible_text")
+
+    def norm(t: object) -> str:
+        return re.sub(r"[\s·→↔\+,\.\:\?!=]+", "", plain(t))
+
+    if visible_raw is not None and body_raw and norm(visible_raw) == norm(body_raw):
+        visible = None
+    else:
+        visible = visible_raw
     source = esc(source_label(slide))
     image = slide.get("image")
 

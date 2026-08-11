@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -104,6 +105,10 @@ def validate(path: Path) -> list[str]:
         ref_text = " ".join(str(r) for r in refs) if isinstance(refs, list) else ""
         if any(flag in source_text or flag in ref_text for flag in ("검토 필요", "검증 필요", "NEEDS-REVIEW", "확인 필요")):
             errors.append(f"{prefix}: public source or primary_references contains internal review flag; review notes belong in speaker_notes or claim-ledger.json")
+        body_text = str(slide.get("body", "")).strip()
+        visible_text = str(slide.get("visible_text", "")).strip()
+        if body_text and visible_text and re.sub(r"[\s·→↔\+,\.\:\?!=]+", "", body_text) == re.sub(r"[\s·→↔\+,\.\:\?!=]+", "", visible_text):
+            errors.append(f"{prefix}: visible_text is identical to body ({body_text!r}); use body for prose and visible_text for distinct token tags to prevent duplicate rendering")
     return errors
 
 
