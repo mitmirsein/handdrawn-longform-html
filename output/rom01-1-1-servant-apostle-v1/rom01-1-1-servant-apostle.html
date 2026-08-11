@@ -92,18 +92,20 @@ h1 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 82px; 
 .content-layout .content-tokens, .structured-layout .structured-tokens { left: 125px; top: 655px; width: 700px; }
 .full-layout h1 { width: 1300px; top: 175px; }
 .full-layout .full-takeaway { left: 125px; top: 300px; width: 850px; }
-.full-layout .full-caption { left: 125px; top: 865px; font-family: var(--display); font-weight: 700; font-size: 40px; color: var(--accent); }
+.full-layout .full-caption { left: 125px; top: 875px; font-family: var(--display); font-weight: 700; font-size: 40px; color: var(--accent); }
 .quote-mark { position: absolute; z-index: 2; left: 125px; top: 170px; color: var(--accent); font-family: var(--display); font-weight: 700; font-size: 170px; line-height: .7; }
-.quote-layout h1 { left: 220px; top: 245px; width: 1000px; font-size: 91px; }
+.quote-layout h1 { left: 220px; top: 245px; width: 750px; font-size: 91px; }
 .quote-layout .takeaway { left: 225px; top: 500px; width: 770px; }
 .quote-layout .quote-body { left: 225px; top: 710px; width: 650px; color: var(--accent); }
 .art { margin: 0; z-index: 1; }
 .art img { width: 100%; height: 100%; object-fit: contain; display: block; }
-.art-title { left: 520px; top: 340px; width: 1300px; height: 650px; }
-.art-content, .art-structured { left: 510px; top: 260px; width: 1320px; height: 700px; }
-.art-full { left: 100px; top: 350px; width: 1720px; height: 610px; }
-.art-quote { left: 580px; top: 300px; width: 1250px; height: 650px; }
-.structured-layout .art-structured { left: 620px; top: 290px; width: 1200px; height: 650px; }
+.art-title { left: 1100px; top: 340px; width: 700px; height: 530px; }
+/* Reserve a right-side art rail so body copy and tokens never sit on the image. */
+.art-content, .art-structured { left: 850px; top: 290px; width: 950px; height: 600px; }
+/* Full-layout pages reserve a bottom caption rail below the artwork. */
+.art-full { left: 100px; top: 390px; width: 1720px; height: 440px; }
+.art-quote { left: 1000px; top: 330px; width: 760px; height: 500px; }
+.structured-layout .art-structured { left: 850px; top: 290px; width: 950px; height: 600px; }
 .structured-tokens, .content-tokens { display: flex; flex-wrap: wrap; align-items: center; gap: 13px; }
 .token-row { display: flex; align-items: center; gap: 13px; }
 .token { display: inline-block; max-width: 350px; padding: 12px 19px 10px; border: 3px solid var(--ink);
@@ -197,6 +199,32 @@ h1 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 82px; 
   });
   const hashNumber = Number.parseInt(location.hash.slice(1), 10);
   setSlide(Number.isFinite(hashNumber) && hashNumber > 0 ? hashNumber - 1 : 0);
+  function rectanglesOverlap(first, second, gap = 1) {
+    const a = first.getBoundingClientRect();
+    const b = second.getBoundingClientRect();
+    return a.left < b.right - gap && a.right > b.left + gap
+      && a.top < b.bottom - gap && a.bottom > b.top + gap;
+  }
+  function collectLayoutIssues() {
+    const issues = [];
+    pages.forEach((page, pageIndex) => {
+      const art = page.querySelector('.art');
+      const layout = page.querySelector('.title-layout, .content-layout, .structured-layout, .full-layout, .quote-layout');
+      if (!art || !layout) return;
+      const textNodes = [...layout.querySelectorAll('h1, .takeaway, .body-copy, .structured-copy, .token-row, .full-caption, .quote-body')];
+      textNodes.forEach((textNode) => {
+        if (!textNode.textContent.trim() || !rectanglesOverlap(art, textNode)) return;
+        issues.push({
+          page: pageIndex + 1,
+          slide: page.dataset.slideId || '',
+          image: art.className,
+          text: textNode.className || textNode.tagName.toLowerCase(),
+          textContent: textNode.textContent.trim().slice(0, 80),
+        });
+      });
+    });
+    return issues;
+  }
   const imagesReady = Promise.all([...document.images].map((image) => image.complete
     ? Promise.resolve()
     : new Promise((resolve, reject) => { image.addEventListener('load', resolve, {once:true}); image.addEventListener('error', reject, {once:true}); })));
@@ -205,6 +233,8 @@ h1 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 82px; 
     return document.fonts.status;
   });
   Promise.all([imagesReady, fontsReady]).then(() => {
+    window.__DECK_LAYOUT_ISSUES__ = collectLayoutIssues();
+    root.dataset.deckLayoutIssues = String(window.__DECK_LAYOUT_ISSUES__.length);
     root.dataset.deckReady = 'true';
     window.__DECK_READY__ = true;
   }).catch((error) => {

@@ -22,6 +22,7 @@ Do not hard-code Claude, Codex, Gemini, a home directory, a provider API key, or
 - Keep the user’s character anchor in every generated scene.
 - Validate `deck.json` before calling `scripts/build_deck.py`.
 - Review visual output for claim fidelity, source labels, legible Korean, character continuity, whitespace, and file integrity.
+- Treat text/image geometry as a build gate: captions and token rows must remain in a reserved text rail, never on top of an illustration.
 - If `font_files` is present, fail rather than silently falling back to a system font.
 
 ## Renderer contract
@@ -34,6 +35,24 @@ slide, while speaker notes remain in the browser-only Notes panel.
 `scripts/render_pdf.mjs` prints the HTML without browser chrome. The PDF page
 size is 960×540 points (16:9), and a strict-font deck must contain the declared
 Gangwon Education fonts without MalgunGothic, Calibri, or other fallback faces.
+After images and fonts load, the HTML runtime computes
+`window.__DECK_LAYOUT_ISSUES__`. The PDF adapter rejects any non-empty result
+before writing the final PDF, so a visual overlap is fixed in the renderer or
+deck layout rather than patched in a generated HTML file.
+
+### Layout safety contract
+
+- `content` and structured layouts reserve a left copy/token rail and a right
+  illustration rail.
+- `full` layouts reserve a bottom caption rail below the illustration.
+- `quote` and `title` layouts keep the illustration to the right of the text
+  block.
+- The browser preflight checks the artwork rectangle against headings,
+  takeaways, body copy, token rows, quote bodies, and full captions.
+
+Manual review still matters: inspect every `full` page and a representative
+`content`, `structured`, and `quote` page in the browser at the active slide,
+then confirm the PDF preflight reports `layoutIssues: []`.
 
 `scripts/render_pptx.py` remains a compatibility adapter. It must only
 assemble reviewed local images and text, and is not the source of truth for

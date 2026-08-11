@@ -70,6 +70,9 @@ python3 scripts/validate_outline.py output/<slug>/deck.json
 - [ ] `window.__DECK_READY__`가 true가 되고 모든 이미지가 로드되는가?
 - [ ] PDF 페이지 수가 덱과 같고, 페이지 크기가 960×540pt(16:9)인가?
 - [ ] 잘린 콘텐츠, overflow, 빈 페이지, 깨진 이미지가 없는가?
+- [ ] `full` 페이지의 캡션이 이미지 아래의 예약된 캡션 레일에 있고 이미지와 교차하지 않는가?
+- [ ] `content`/`comparison`/`timeline`/`flow`/`table`의 본문·토큰이 오른쪽 이미지 레일과 교차하지 않는가?
+- [ ] 브라우저 레이아웃 preflight의 `layoutIssues`가 빈 배열인가?
 - [ ] `font_files`가 선언된 경우 해당 폰트만 PDF에 embedding되며 fallback이 없는가?
 - [ ] 대표 페이지와 마지막 페이지를 실제 렌더링 이미지로 확인했는가?
 

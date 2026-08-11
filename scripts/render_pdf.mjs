@@ -109,6 +109,7 @@ async function main() {
         imageCount: images.length,
         brokenImages: images.filter((image) => !image.complete || image.naturalWidth === 0).length,
         overflow,
+        layoutIssues: window.__DECK_LAYOUT_ISSUES__ || [],
         fonts,
         fontStatus: document.fonts.status,
       };
@@ -116,6 +117,9 @@ async function main() {
     if (!check.pageCount) throw new Error("HTML contains no slide pages");
     if (check.brokenImages) throw new Error(`HTML contains ${check.brokenImages} broken images`);
     if (check.overflow) throw new Error(`HTML contains ${check.overflow} overflowing slide canvases`);
+    if (check.layoutIssues.length) {
+      throw new Error(`HTML contains ${check.layoutIssues.length} art/text overlap(s): ${JSON.stringify(check.layoutIssues)}`);
+    }
     if (check.fontStatus !== "loaded" || !check.fonts.display || !check.fonts.body) {
       throw new Error(`Font preflight failed: ${JSON.stringify(check)}`);
     }

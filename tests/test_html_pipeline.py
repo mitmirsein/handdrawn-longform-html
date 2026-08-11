@@ -33,6 +33,9 @@ class HtmlPipelineTests(unittest.TestCase):
             self.assertEqual(document.count('class="slide-page"'), 12)
             self.assertIn("@page", document)
             self.assertIn("window.__DECK_READY__", document)
+            self.assertIn("window.__DECK_LAYOUT_ISSUES__", document)
+            self.assertIn("Reserve a right-side art rail", document)
+            self.assertIn("bottom caption rail below the artwork", document)
 
     def test_current_deck_declares_local_exact_fonts(self) -> None:
         self.assertTrue(CURRENT.is_file(), CURRENT)

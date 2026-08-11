@@ -85,7 +85,7 @@ Use metaphors, maps, timelines, relationships, and object interactions for sacre
 
 Generate only the approved number of image assets. Use the selected hand-drawn mode and aspect ratio consistently. Review in this order: argument fidelity, source/citation accuracy, page hierarchy, Korean text legibility, character identity, visual meaning, line mode, whitespace, and file integrity.
 
-Validate the outline with `scripts/validate_outline.py`. Assemble the reviewed local assets with `scripts/build_deck.py`, which renders static HTML first and then uses the system Chrome/Playwright adapter for PDF. The legacy `scripts/render_pptx.py` remains an optional target. If a renderer is unavailable, leave a valid `deck.json` and prompt/reference manifest; do not claim an exported deck.
+Validate the outline with `scripts/validate_outline.py`. Assemble the reviewed local assets with `scripts/build_deck.py`, which renders static HTML first and then uses the system Chrome/Playwright adapter for PDF. The browser preflight must report no art/text geometry overlaps; fix the shared renderer or reviewed deck layout instead of editing a generated HTML file by hand. The legacy `scripts/render_pptx.py` remains an optional target. If a renderer is unavailable, leave a valid `deck.json` and prompt/reference manifest; do not claim an exported deck.
 
 The HTML renderer uses a 1920×1080 design canvas and a 16:9 print page. When
 `font_files.display` and `font_files.body` are declared, both files must exist,
