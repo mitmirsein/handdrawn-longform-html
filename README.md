@@ -1,5 +1,7 @@
 # Handdrawn Longform HTML
 
+![Handdrawn Longform HTML Preview](assets/preview.png)
+
 긴 분량의 한글/영문 글(설교, 에세이, 칼럼, 강연 등)의 구조와 논지를 분석하여, 일상적이고 친근한 손그림 캐릭터 중심의 슬라이드로 구성하고 정적 **HTML** 및 인쇄용 **PDF** 덱으로 렌더링하는 에이전트 스킬 엔진입니다.
 
 ## 지침 계층 구조
