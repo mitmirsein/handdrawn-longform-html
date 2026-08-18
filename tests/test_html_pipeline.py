@@ -195,6 +195,28 @@ class HtmlPipelineTests(unittest.TestCase):
             self.assertFalse((destination / "character/anchor.png").exists())
             self.assertFalse((destination / "stale-screenshot.png").exists())
 
+    def test_render_creates_synchronized_presenter_view(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            output_main = Path(temporary) / "deck.html"
+            output_presenter = Path(temporary) / "deck_presenter.html"
+
+            render(FIXTURE, output_main)
+
+            self.assertTrue(output_main.is_file())
+            self.assertTrue(output_presenter.is_file())
+
+            main_content = output_main.read_text(encoding="utf-8")
+            self.assertIn('id="drawCanvas"', main_content)
+            self.assertIn('id="floatingToolBar"', main_content)
+            self.assertIn("BroadcastChannel", main_content)
+
+            presenter_content = output_presenter.read_text(encoding="utf-8")
+            self.assertIn("발표자 모드 (Presenter View)", presenter_content)
+            self.assertIn('id="pTimer"', presenter_content)
+            self.assertIn('id="pSpeechBox"', presenter_content)
+            self.assertIn("BroadcastChannel", presenter_content)
+
 
 if __name__ == "__main__":
     unittest.main()
+

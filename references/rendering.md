@@ -30,7 +30,10 @@ Do not hard-code Claude, Codex, Gemini, Imagen, Nano Banana, a home directory, a
 `scripts/render_html.py` must only assemble reviewed local images and text. It
 must not search, call an image model, or fabricate missing images. Its minimum
 layouts are `title`, `content`, `full`, and `quote`; sources appear on the
-slide, while speaker notes remain in the browser-only Notes panel.
+slide, while speaker notes are accessible via the in-slide Notes panel and the
+synchronized Presenter View (`*_presenter.html`) with timer, clock, notes font
+sizing, live drawing tools (highlighter, pen, laser pointer), and `BroadcastChannel`
+sync.
 
 `scripts/render_pdf.mjs` prints the HTML without browser chrome. The PDF page
 size is 960×540 points (16:9), and a strict-font deck must contain the declared

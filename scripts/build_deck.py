@@ -93,6 +93,10 @@ def main() -> int:
     print("build complete:")
     for target in sorted(targets):
         print(f"- {output.with_suffix(extensions[target])}")
+        if target == "html":
+            presenter_file = output.with_name(f"{output.stem}_presenter.html")
+            if presenter_file.exists():
+                print(f"- {presenter_file} (Presenter View)")
     return 0
 
 

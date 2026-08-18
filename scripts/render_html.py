@@ -421,7 +421,30 @@ h1 {{ margin: 0; font-family: var(--display); font-weight: 700; font-size: 82px;
 .slide-page.is-active .notes-panel.is-open {{ display: block; }}
 .notes-kicker {{ color: var(--accent); font-family: var(--display); font-size: 16px; letter-spacing: .08em; margin-bottom: 8px; }}
 .notes-text {{ font-family: var(--body); font-size: 18px; line-height: 1.5; }}
-.help {{ max-width: 1280px; margin: 16px auto 0; color: #716b63; font-size: 14px; }}
+.help {{ max-width: 1280px; margin: 16px auto 0; color: #716b63; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }}
+
+/* Drawing Canvas & Floating Presentation Tool Bar */
+#drawCanvas {{
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; pointer-events: none;
+}}
+#drawCanvas.active-draw {{ pointer-events: auto; cursor: crosshair; }}
+#drawCanvas.active-laser {{ pointer-events: auto; cursor: none; }}
+
+.floating-tool-bar {{
+  position: fixed; bottom: 18px; right: 24px; display: flex; gap: 4px;
+  background: rgba(255, 254, 250, 0.96); backdrop-filter: blur(10px);
+  border: 2px solid var(--ink); border-radius: 20px; padding: 5px 10px;
+  z-index: 60; box-shadow: 4px 5px 0 rgba(27,27,27,.12); opacity: 0.35;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}}
+.floating-tool-bar:hover, .floating-tool-bar.active {{ opacity: 1; transform: translateY(-2px); }}
+.tool-btn {{
+  background: transparent; border: none; font-family: var(--display); font-size: 12px;
+  font-weight: 700; color: var(--ink); padding: 4px 8px; border-radius: 10px;
+  cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}}
+.tool-btn:hover {{ background: rgba(226,78,67,.12); color: var(--accent); }}
+.tool-btn.active {{ background: var(--accent); color: #fff; }}
 
 @media screen and (max-width: 1360px) {{
   .app {{ padding: 18px; }}
@@ -432,12 +455,26 @@ h1 {{ margin: 0; font-family: var(--display); font-weight: 700; font-size: 82px;
   @page {{ size: 1280px 720px; margin: 0; }}
   html, body {{ width: 1280px; height: 720px; background: white; }}
   .app {{ padding: 0; }}
-  .toolbar, .help, .notes-panel {{ display: none !important; }}
+  .toolbar, .help, .notes-panel, .floating-tool-bar, #drawCanvas {{ display: none !important; }}
   .viewer-shell, .deck-viewer {{ width: 1280px; height: 720px; max-width: none; transform: none !important; margin: 0; }}
   .slide-page, .slide-page.is-active {{ display: block; width: 1280px; height: 720px; box-shadow: none; }}
   .canvas {{ transform: none !important; zoom: .6666667; print-color-adjust: exact; -webkit-print-color-adjust: exact; }}
 }}
 """
+    clean_title = re.sub(r"[^a-zA-Z0-9_]", "_", plain(data.get("title", "deck")).strip().lower())[:30]
+    channel_name = f"handdrawn_slide_sync_{clean_title}"
+    presenter_rel = f"{output_path.stem}_presenter.html"
+
+    slide_titles_json = json.dumps([
+        f"{i+1}. {plain(s.get('headline') or s.get('title') or f'Slide {i+1}')}"
+        for i, s in enumerate(slides)
+    ], ensure_ascii=False)
+    
+    slide_speeches_json = json.dumps([
+        plain(s.get("speaker_notes", "")).strip() or plain(s.get("one_sentence_takeaway", ""))
+        for s in slides
+    ], ensure_ascii=False)
+
     html_doc = f"""<!doctype html>
 <html lang="{esc(data.get('language', 'ko'))}" data-font-required="{'true' if font_required else 'false'}">
 <head>
@@ -459,44 +496,305 @@ h1 {{ margin: 0; font-family: var(--display); font-weight: 700; font-size: 82px;
       <span data-current>01 / {len(slides):02d}</span>
       <button type="button" data-action="next" aria-label="Next slide">→</button>
       <button type="button" data-action="notes">Notes</button>
+      <button type="button" data-action="presenter" style="font-weight:700; color:var(--accent);">🎙️ 발표자창</button>
     </div>
   </div>
   <div class="viewer-shell">
     <div class="deck-viewer" data-deck-viewer>
+      <canvas id="drawCanvas"></canvas>
       {pages}
     </div>
   </div>
-  <div class="help">← → 페이지 이동 · N 스피커 노트 · P 인쇄 대화상자</div>
+  <div class="help">
+    <span>← → 이동 · N 노트 · P 인쇄 · W 발표자창 · F 전체화면</span>
+    <span>판서: H 형광펜 · P 펜 · L 레이저 · C 지우기 · ESC 선택</span>
+  </div>
+
+  <div class="floating-tool-bar" id="floatingToolBar">
+    <button class="tool-btn active" id="btnModeNone" title="선택 모드 (ESC)">🖱️ 선택</button>
+    <button class="tool-btn" id="btnModeHighlighter" title="형광펜 (H)">🖍️ 형광펜</button>
+    <button class="tool-btn" id="btnModePen" title="펜 필기 (P)">✏️ 펜</button>
+    <button class="tool-btn" id="btnModeLaser" title="레이저 포인터 (L)">🔴 레이저</button>
+    <button class="tool-btn" id="btnClearCanvas" title="판서 지우기 (C)">🧹 지우기</button>
+    <button class="tool-btn" id="btnToggleFullscreen" title="전체화면 토글 (F)">⛶ 전체화면</button>
+    <button class="tool-btn" id="btnOpenPresenter" title="발표자 전용 창 열기 (W)" style="color:var(--accent); font-weight:800;">🎙️ 발표자창</button>
+  </div>
 </main>
 <script>
 (() => {{
   const root = document.documentElement;
   const pages = [...document.querySelectorAll('.slide-page')];
   const current = document.querySelector('[data-current]');
+  const viewer = document.querySelector('[data-deck-viewer]');
   const requiredFonts = {font_list};
+  const syncChannelName = '{channel_name}';
+  const presenterFile = '{presenter_rel}';
+  const slideTitles = {slide_titles_json};
+  const slideSpeeches = {slide_speeches_json};
+
   let index = 0;
-  function setSlide(next) {{
+  let notesOpen = false;
+
+  // BroadcastChannel Sync
+  const sync = new BroadcastChannel(syncChannelName);
+  let presenterWindow = null;
+
+  function broadcastState() {{
+    sync.postMessage({{
+      type: 'SLIDE_CHANGE',
+      currentSlide: index + 1,
+      totalSlides: pages.length,
+      title: slideTitles[index] || '',
+      nextTitle: slideTitles[index + 1] || '(마지막 슬라이드입니다)',
+      speech: slideSpeeches[index] || '',
+      nextSpeech: slideSpeeches[index + 1] || ''
+    }});
+    try {{ localStorage.setItem(syncChannelName + '_current', String(index + 1)); }} catch(e){{}}
+  }}
+
+  sync.onmessage = (e) => {{
+    if (e.data && e.data.type === 'GOTO_SLIDE') {{
+      setSlide(e.data.slide - 1, false);
+    }} else if (e.data && e.data.type === 'REQUEST_STATE') {{
+      broadcastState();
+    }}
+  }};
+
+  window.addEventListener('storage', (e) => {{
+    if (e.key === syncChannelName + '_current' && e.newValue) {{
+      setSlide(parseInt(e.newValue, 10) - 1, false);
+    }}
+  }});
+
+  function setSlide(next, broadcast = true) {{
     index = (next + pages.length) % pages.length;
     pages.forEach((page, i) => page.classList.toggle('is-active', i === index));
     if (current) current.textContent = `${{String(index + 1).padStart(2, '0')}} / ${{String(pages.length).padStart(2, '0')}}`;
-    history.replaceState(null, '', `#${{index + 1}}`);
+    renderCanvas();
+    if (broadcast) broadcastState();
   }}
+
   function toggleNotes() {{
-    const panel = pages[index]?.querySelector('.notes-panel');
-    if (panel) panel.classList.toggle('is-open');
+    notesOpen = !notesOpen;
+    pages.forEach((page) => {{
+      const panel = page.querySelector('.notes-panel');
+      if (panel) panel.classList.toggle('is-open', notesOpen);
+    }});
   }}
-  document.querySelector('[data-action="prev"]')?.addEventListener('click', () => setSlide(index - 1));
-  document.querySelector('[data-action="next"]')?.addEventListener('click', () => setSlide(index + 1));
-  document.querySelector('[data-action="notes"]')?.addEventListener('click', toggleNotes);
-  window.addEventListener('keydown', (event) => {{
-    if (event.key === 'ArrowRight' || event.key === 'PageDown') setSlide(index + 1);
-    if (event.key === 'ArrowLeft' || event.key === 'PageUp') setSlide(index - 1);
-    if (event.key.toLowerCase() === 'n') toggleNotes();
-    if (event.key.toLowerCase() === 'p') window.print();
+
+  function openPresenter() {{
+    if (presenterWindow && !presenterWindow.closed) {{
+      presenterWindow.focus();
+      broadcastState();
+      return;
+    }}
+    presenterWindow = window.open(presenterFile, 'HanddrawnPresenterView', 'width=1100,height=750,menubar=no,toolbar=no,location=no,status=no');
+    setTimeout(broadcastState, 300);
+  }}
+
+  function toggleFullscreen() {{
+    if (!document.fullscreenElement) {{
+      document.documentElement.requestFullscreen().catch(() => {{}});
+    }} else {{
+      if (document.exitFullscreen) document.exitFullscreen();
+    }}
+  }}
+
+  // Canvas Drawing Overlay
+  const canvas = document.getElementById('drawCanvas');
+  const ctx = canvas.getContext('2d');
+  let toolMode = 'none';
+  let isDrawing = false;
+  let currentStroke = [];
+  let laserX = -100;
+  let laserY = -100;
+  let animFrameId = null;
+  const slideBuffers = {{}};
+
+  function resizeCanvas() {{
+    if (!viewer) return;
+    const rect = viewer.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    renderCanvas();
+  }}
+  window.addEventListener('resize', resizeCanvas);
+
+  function setToolMode(mode) {{
+    toolMode = mode;
+    canvas.classList.remove('active-draw', 'active-laser');
+    document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+
+    if (mode === 'highlighter') {{
+      canvas.classList.add('active-draw');
+      document.getElementById('btnModeHighlighter')?.classList.add('active');
+    }} else if (mode === 'pen') {{
+      canvas.classList.add('active-draw');
+      document.getElementById('btnModePen')?.classList.add('active');
+    }} else if (mode === 'laser') {{
+      canvas.classList.add('active-laser');
+      document.getElementById('btnModeLaser')?.classList.add('active');
+      startLaserLoop();
+    }} else {{
+      document.getElementById('btnModeNone')?.classList.add('active');
+    }}
+  }}
+
+  function getCanvasCoords(e) {{
+    const rect = canvas.getBoundingClientRect();
+    return {{ x: e.clientX - rect.left, y: e.clientY - rect.top }};
+  }}
+
+  canvas.addEventListener('mousedown', (e) => {{
+    if (toolMode !== 'pen' && toolMode !== 'highlighter') return;
+    isDrawing = true;
+    const coords = getCanvasCoords(e);
+    currentStroke = [{{ x: coords.x, y: coords.y, mode: toolMode }}];
+    renderCanvas();
   }});
-  const hashNumber = Number.parseInt(location.hash.slice(1), 10);
-  setSlide(Number.isFinite(hashNumber) && hashNumber > 0 ? hashNumber - 1 : 0);
-  function rectanglesOverlap(first, second, gap = 1) {{
+
+  canvas.addEventListener('mousemove', (e) => {{
+    const coords = getCanvasCoords(e);
+    if (toolMode === 'laser') {{ laserX = coords.x; laserY = coords.y; }}
+    if (!isDrawing || (toolMode !== 'pen' && toolMode !== 'highlighter')) return;
+    currentStroke.push({{ x: coords.x, y: coords.y, mode: toolMode }});
+    renderCanvas();
+  }});
+
+  window.addEventListener('mouseup', () => {{
+    if (isDrawing) {{
+      isDrawing = false;
+      if (currentStroke.length > 0) {{
+        if (!slideBuffers[index]) {{
+          const off = document.createElement('canvas');
+          const rect = viewer.getBoundingClientRect();
+          const dpr = window.devicePixelRatio || 1;
+          off.width = rect.width * dpr; off.height = rect.height * dpr;
+          slideBuffers[index] = off;
+        }}
+        const bCtx = slideBuffers[index].getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        bCtx.save();
+        bCtx.scale(dpr, dpr);
+        drawPath(bCtx, currentStroke);
+        bCtx.restore();
+      }}
+      currentStroke = [];
+      renderCanvas();
+    }}
+  }});
+
+  function drawPath(targetCtx, stroke) {{
+    if (stroke.length < 2) return;
+    const mode = stroke[0].mode;
+    targetCtx.save();
+    if (mode === 'highlighter') {{
+      targetCtx.globalCompositeOperation = 'multiply';
+      targetCtx.strokeStyle = 'rgba(255, 230, 80, 0.55)';
+      targetCtx.lineWidth = 28; targetCtx.lineCap = 'round'; targetCtx.lineJoin = 'round';
+    }} else if (mode === 'pen') {{
+      targetCtx.globalCompositeOperation = 'source-over';
+      targetCtx.strokeStyle = '#e24e43';
+      targetCtx.lineWidth = 4; targetCtx.lineCap = 'round'; targetCtx.lineJoin = 'round';
+    }}
+    targetCtx.beginPath();
+    targetCtx.moveTo(stroke[0].x, stroke[0].y);
+    for (let i = 1; i < stroke.length - 1; i++) {{
+      const xc = (stroke[i].x + stroke[i + 1].x) / 2;
+      const yc = (stroke[i].y + stroke[i + 1].y) / 2;
+      targetCtx.quadraticCurveTo(stroke[i].x, stroke[i].y, xc, yc);
+    }}
+    targetCtx.lineTo(stroke[stroke.length - 1].x, stroke[stroke.length - 1].y);
+    targetCtx.stroke();
+    targetCtx.restore();
+  }}
+
+  function renderCanvas() {{
+    if (!viewer) return;
+    const rect = viewer.getBoundingClientRect();
+    ctx.clearRect(0, 0, rect.width, rect.height);
+    const buf = slideBuffers[index];
+    if (buf) ctx.drawImage(buf, 0, 0, rect.width, rect.height);
+    if (currentStroke.length > 1) drawPath(ctx, currentStroke);
+  }}
+
+  function clearCanvas() {{
+    const buf = slideBuffers[index];
+    if (buf) {{
+      const bCtx = buf.getContext('2d');
+      bCtx.clearRect(0, 0, buf.width, buf.height);
+    }}
+    currentStroke = [];
+    renderCanvas();
+  }}
+
+  function startLaserLoop() {{
+    if (animFrameId) cancelAnimationFrame(animFrameId);
+    function renderLaser() {{
+      if (toolMode === 'laser' && laserX > 0 && laserY > 0) {{
+        renderCanvas();
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(laserX, laserY, 14, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 50, 50, 0.35)';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(laserX, laserY, 6, 0, Math.PI * 2);
+        ctx.fillStyle = '#FF1A1A';
+        ctx.shadowColor = '#FF0000';
+        ctx.shadowBlur = 10;
+        ctx.fill();
+        ctx.restore();
+      }}
+      if (toolMode === 'laser') animFrameId = requestAnimationFrame(renderLaser);
+    }}
+    renderLaser();
+  }}
+
+  document.addEventListener('keydown', (event) => {{
+    const key = event.key.toLowerCase();
+    if (event.key === 'ArrowRight' || event.key === ' ' || event.key === 'PageDown') {{
+      event.preventDefault(); setSlide(index + 1);
+    }} else if (event.key === 'ArrowLeft' || event.key === 'PageUp' || event.key === 'Backspace') {{
+      event.preventDefault(); setSlide(index - 1);
+    }} else if (key === 'n') {{
+      event.preventDefault(); toggleNotes();
+    }} else if (key === 'w') {{
+      event.preventDefault(); openPresenter();
+    }} else if (key === 'f') {{
+      event.preventDefault(); toggleFullscreen();
+    }} else if (key === 'h') {{
+      setToolMode(toolMode === 'highlighter' ? 'none' : 'highlighter');
+    }} else if (key === 'p' && !event.metaKey && !event.ctrlKey) {{
+      setToolMode(toolMode === 'pen' ? 'none' : 'pen');
+    }} else if (key === 'l') {{
+      setToolMode(toolMode === 'laser' ? 'none' : 'laser');
+    }} else if (key === 'c') {{
+      clearCanvas();
+    }} else if (event.key === 'Escape') {{
+      setToolMode('none');
+    }} else if (event.key >= '1' && event.key <= '9') {{
+      setSlide(parseInt(event.key, 10) - 1);
+    }}
+  }});
+
+  document.querySelectorAll('[data-action="prev"]').forEach(btn => btn.addEventListener('click', () => setSlide(index - 1)));
+  document.querySelectorAll('[data-action="next"]').forEach(btn => btn.addEventListener('click', () => setSlide(index + 1)));
+  document.querySelectorAll('[data-action="notes"]').forEach(btn => btn.addEventListener('click', toggleNotes));
+  document.querySelectorAll('[data-action="presenter"]').forEach(btn => btn.addEventListener('click', openPresenter));
+
+  document.getElementById('btnModeNone')?.addEventListener('click', () => setToolMode('none'));
+  document.getElementById('btnModeHighlighter')?.addEventListener('click', () => setToolMode(toolMode === 'highlighter' ? 'none' : 'highlighter'));
+  document.getElementById('btnModePen')?.addEventListener('click', () => setToolMode(toolMode === 'pen' ? 'none' : 'pen'));
+  document.getElementById('btnModeLaser')?.addEventListener('click', () => setToolMode(toolMode === 'laser' ? 'none' : 'laser'));
+  document.getElementById('btnClearCanvas')?.addEventListener('click', clearCanvas);
+  document.getElementById('btnToggleFullscreen')?.addEventListener('click', toggleFullscreen);
+  document.getElementById('btnOpenPresenter')?.addEventListener('click', openPresenter);
+
+  function rectanglesOverlap(first, second, gap = 4) {{
     const a = first.getBoundingClientRect();
     const b = second.getBoundingClientRect();
     return a.left < b.right - gap && a.right > b.left + gap
@@ -552,6 +850,8 @@ h1 {{ margin: 0; font-family: var(--display); font-weight: 700; font-size: 82px;
     root.dataset.deckLayoutIssues = String(window.__DECK_LAYOUT_ISSUES__.length);
     root.dataset.deckReady = 'true';
     window.__DECK_READY__ = true;
+    resizeCanvas();
+    setSlide(0, false);
   }}).catch((error) => {{
     root.dataset.deckError = String(error);
     window.__DECK_READY__ = false;
@@ -562,6 +862,420 @@ h1 {{ margin: 0; font-family: var(--display); font-weight: 700; font-size: 82px;
 </html>
 """
     output_path.write_text(html_doc, encoding="utf-8")
+
+    # Also generate Presenter View HTML
+    presenter_path = output_path.with_name(presenter_rel)
+    render_presenter_html(data, slides, presenter_path, channel_name)
+
+    return output_path
+
+
+def render_presenter_html(data: dict, slides: list[dict], output_path: Path, channel_name: str) -> Path:
+    title = esc(plain(data.get("title", "Handdrawn Longform HTML")))
+    total_slides = len(slides)
+
+    titles = [
+        f"{i+1}. {plain(s.get('headline') or s.get('title') or f'Slide {i+1}')}"
+        for i, s in enumerate(slides)
+    ]
+    speeches = [
+        plain(s.get("speaker_notes", "")).strip() or plain(s.get("one_sentence_takeaway", ""))
+        for s in slides
+    ]
+
+    titles_json = json.dumps(titles, ensure_ascii=False)
+    speeches_json = json.dumps(speeches, ensure_ascii=False)
+
+    presenter_doc = f"""<!DOCTYPE html>
+<html lang="{esc(data.get('language', 'ko'))}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎙️ 발표자 모드 (Presenter View) · {title}</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {{
+      --bg: #141416;
+      --card-bg: #202024;
+      --border: #323238;
+      --text-main: #EDEDF0;
+      --text-muted: #9E9EA8;
+      --accent: #E24E43;
+      --green: #4EBA7C;
+      --blue: #4D96FF;
+    }}
+    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+    body {{
+      background: var(--bg);
+      color: var(--text-main);
+      font-family: "Pretendard", system-ui, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      user-select: text;
+    }}
+    header {{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 24px;
+      background: #1A1A1E;
+      border-bottom: 1.5px solid var(--border);
+    }}
+    .header-left {{
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }}
+    .slide-badge {{
+      background: var(--accent);
+      color: #fff;
+      font-weight: 800;
+      font-size: 15px;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }}
+    .timer-container {{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: monospace;
+      font-size: 22px;
+      font-weight: 700;
+      color: #FFF;
+      background: #000;
+      padding: 4px 14px;
+      border-radius: 8px;
+      border: 1px solid #333;
+    }}
+    .clock-display {{
+      font-size: 15px;
+      color: var(--text-muted);
+      font-family: monospace;
+    }}
+    .main-grid {{
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 20px;
+      padding: 20px 24px;
+      flex: 1;
+      overflow: hidden;
+    }}
+    .notes-panel {{
+      background: var(--card-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }}
+    .panel-header {{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }}
+    .panel-title {{
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+    }}
+    .font-btns {{
+      display: flex;
+      gap: 6px;
+    }}
+    .small-btn {{
+      background: #2C2C32;
+      border: 1px solid var(--border);
+      color: #FFF;
+      padding: 2px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }}
+    .small-btn:hover {{ background: #3E3E48; }}
+    .speech-box {{
+      flex: 1;
+      overflow-y: auto;
+      font-family: "Noto Serif KR", serif;
+      font-size: 22px;
+      line-height: 1.8;
+      color: #F0EDE6;
+      white-space: pre-wrap;
+      padding-right: 10px;
+    }}
+    .speech-box::-webkit-scrollbar {{ width: 6px; }}
+    .speech-box::-webkit-scrollbar-thumb {{ background: #444; border-radius: 4px; }}
+    .side-panel {{
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow: hidden;
+    }}
+    .card {{
+      background: var(--card-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+    }}
+    .current-title-card {{
+      border-left: 4px solid var(--accent);
+    }}
+    .current-slide-heading {{
+      font-size: 18px;
+      font-weight: 800;
+      color: #FFF;
+      margin-top: 4px;
+      line-height: 1.4;
+    }}
+    .next-slide-card {{
+      border-left: 4px solid var(--green);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }}
+    .next-slide-heading {{
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--green);
+      margin-top: 4px;
+      line-height: 1.4;
+    }}
+    .next-speech-snippet {{
+      margin-top: 10px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-muted);
+      overflow-y: auto;
+      font-family: "Noto Serif KR", serif;
+    }}
+    footer {{
+      background: #1A1A1E;
+      border-top: 1.5px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }}
+    .nav-btn {{
+      background: #2D2D34;
+      border: 1.5px solid var(--border);
+      color: #FFF;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 8px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s;
+    }}
+    .nav-btn:hover {{ background: var(--accent); border-color: var(--accent); }}
+    .jump-group {{
+      display: flex;
+      gap: 6px;
+    }}
+    .jump-btn {{
+      background: #25252B;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 700;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      cursor: pointer;
+    }}
+    .jump-btn.active {{
+      background: var(--accent);
+      color: #FFF;
+      border-color: var(--accent);
+    }}
+    .jump-btn:hover {{ color: #FFF; border-color: #555; }}
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-left">
+      <span class="slide-badge" id="pSlideBadge">Slide 1 / {total_slides}</span>
+      <span style="font-size:14px; font-weight:700; color:#888;">{title}</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:20px;">
+      <span class="clock-display" id="pClock">00:00:00</span>
+      <div class="timer-container">
+        <span id="pTimer">00:00</span>
+        <button class="small-btn" id="pTimerBtn" title="타이머 일시정지/재생" style="padding:2px 6px;">⏸️</button>
+        <button class="small-btn" id="pTimerReset" title="타이머 초기화" style="padding:2px 6px;">🔄</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="main-grid">
+    <div class="notes-panel">
+      <div class="panel-header">
+        <span class="panel-title">🗒️ 이번 슬라이드 발표 대본 (Speaker Notes)</span>
+        <div class="font-btns">
+          <button class="small-btn" id="pFontDown">가-</button>
+          <button class="small-btn" id="pFontUp">가+</button>
+        </div>
+      </div>
+      <div class="speech-box" id="pSpeechBox">대본을 불러오는 중...</div>
+    </div>
+
+    <div class="side-panel">
+      <div class="card current-title-card">
+        <span style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">현재 화면</span>
+        <div class="current-slide-heading" id="pCurrentTitle">-</div>
+      </div>
+
+      <div class="card next-slide-card">
+        <span style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">다음 슬라이드 미리보기</span>
+        <div class="next-slide-heading" id="pNextTitle">-</div>
+        <div class="next-speech-snippet" id="pNextSnippet">-</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <button class="nav-btn" id="pPrevBtn">◀ 이전 슬라이드 (←)</button>
+    <div class="jump-group" id="pJumpGroup"></div>
+    <button class="nav-btn" id="pNextBtn" style="background:var(--accent); border-color:var(--accent);">다음 슬라이드 ▶ (Space / →)</button>
+  </footer>
+
+  <script>
+    const speeches = {speeches_json};
+    const slideTitles = {titles_json};
+    const syncChannelName = '{channel_name}';
+
+    const sync = new BroadcastChannel(syncChannelName);
+    let pCurrentSlide = 1;
+    let pTotalSlides = slideTitles.length;
+    let fontSize = 22;
+
+    function renderPresenterUI(index) {{
+      if (index < 1) index = 1;
+      if (index > pTotalSlides) index = pTotalSlides;
+      pCurrentSlide = index;
+
+      document.getElementById('pSlideBadge').textContent = `Slide ${{pCurrentSlide}} / ${{pTotalSlides}}`;
+      document.getElementById('pCurrentTitle').textContent = slideTitles[pCurrentSlide - 1] || '';
+      document.getElementById('pNextTitle').textContent = slideTitles[pCurrentSlide] || '(마지막 슬라이드입니다)';
+      document.getElementById('pSpeechBox').textContent = speeches[pCurrentSlide - 1] || '';
+      
+      const nextSp = speeches[pCurrentSlide] || '';
+      document.getElementById('pNextSnippet').textContent = nextSp ? (nextSp.slice(0, 180) + (nextSp.length > 180 ? '...' : '')) : '-';
+
+      document.querySelectorAll('.jump-btn').forEach((b, idx) => {{
+        if (idx + 1 === pCurrentSlide) b.classList.add('active');
+        else b.classList.remove('active');
+      }});
+    }}
+
+    setInterval(() => {{
+      const now = new Date();
+      document.getElementById('pClock').textContent = now.toLocaleTimeString('ko-KR', {{ hour12: false }});
+    }}, 1000);
+    const now = new Date();
+    document.getElementById('pClock').textContent = now.toLocaleTimeString('ko-KR', {{ hour12: false }});
+
+    let timerSec = 0;
+    let timerRunning = true;
+    const timerEl = document.getElementById('pTimer');
+    setInterval(() => {{
+      if (timerRunning) {{
+        timerSec++;
+        const mins = String(Math.floor(timerSec / 60)).padStart(2, '0');
+        const secs = String(timerSec % 60).padStart(2, '0');
+        timerEl.textContent = `${{mins}}:${{secs}}`;
+      }}
+    }}, 1000);
+
+    document.getElementById('pTimerBtn').onclick = () => {{
+      timerRunning = !timerRunning;
+      document.getElementById('pTimerBtn').textContent = timerRunning ? '⏸️' : '▶️';
+    }};
+    document.getElementById('pTimerReset').onclick = () => {{
+      timerSec = 0;
+      timerEl.textContent = '00:00';
+    }};
+
+    document.getElementById('pFontUp').onclick = () => {{
+      if (fontSize < 40) fontSize += 2;
+      document.getElementById('pSpeechBox').style.fontSize = fontSize + 'px';
+    }};
+    document.getElementById('pFontDown').onclick = () => {{
+      if (fontSize > 14) fontSize -= 2;
+      document.getElementById('pSpeechBox').style.fontSize = fontSize + 'px';
+    }};
+
+    function goToSlide(target) {{
+      if (target < 1) target = 1;
+      if (target > pTotalSlides) target = pTotalSlides;
+      renderPresenterUI(target);
+      sync.postMessage({{ type: 'GOTO_SLIDE', slide: target }});
+      try {{
+        localStorage.setItem(syncChannelName + '_current', target);
+      }} catch(e){{}}
+    }}
+
+    document.getElementById('pNextBtn').onclick = () => goToSlide(pCurrentSlide + 1);
+    document.getElementById('pPrevBtn').onclick = () => goToSlide(pCurrentSlide - 1);
+
+    const jumpGroup = document.getElementById('pJumpGroup');
+    jumpGroup.innerHTML = '';
+    for (let i = 1; i <= pTotalSlides; i++) {{
+      const btn = document.createElement('button');
+      btn.className = 'jump-btn' + (i === 1 ? ' active' : '');
+      btn.id = 'pJump' + i;
+      btn.textContent = i;
+      btn.onclick = () => goToSlide(i);
+      jumpGroup.appendChild(btn);
+    }}
+
+    document.addEventListener('keydown', (e) => {{
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown' || e.key === 'Enter') {{
+        e.preventDefault();
+        goToSlide(pCurrentSlide + 1);
+      }} else if (e.key === 'ArrowLeft' || e.key === 'PageUp' || e.key === 'Backspace') {{
+        e.preventDefault();
+        goToSlide(pCurrentSlide - 1);
+      }} else if (e.key >= '1' && e.key <= '9') {{
+        goToSlide(parseInt(e.key));
+      }}
+    }});
+
+    sync.onmessage = (e) => {{
+      if (e.data && e.data.type === 'SLIDE_CHANGE') {{
+        renderPresenterUI(e.data.currentSlide);
+      }}
+    }};
+
+    window.addEventListener('storage', (e) => {{
+      if (e.key === syncChannelName + '_current' && e.newValue) {{
+        renderPresenterUI(parseInt(e.newValue));
+      }}
+    }});
+
+    const saved = localStorage.getItem(syncChannelName + '_current');
+    renderPresenterUI(saved ? parseInt(saved) : 1);
+    sync.postMessage({{ type: 'REQUEST_STATE' }});
+  </script>
+</body>
+</html>
+"""
+    output_path.write_text(presenter_doc, encoding="utf-8")
     return output_path
 
 
@@ -576,6 +1290,7 @@ def main() -> int:
         print(f"HTML render failed: {exc}", file=sys.stderr)
         return 1
     print(f"HTML rendered: {output}")
+    print(f"Presenter View rendered: {output.with_name(f'{output.stem}_presenter.html')}")
     return 0
 
 
